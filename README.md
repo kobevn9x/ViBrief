@@ -2,7 +2,7 @@
 
 Extension Chrome (Manifest V3) lấy cảm hứng từ *TLDR Summarizer AI*, gồm 2 chức năng:
 
-1. **Tóm tắt trang đang xem**: 1 câu TLDR + 3/5/8 ý chính (từ khoá được tô sáng) + đoạn tóm tắt. Mặc định tóm tắt **song ngữ Anh–Việt** (mỗi câu tiếng Việt kèm bản tiếng Anh ngay bên dưới); có thể chọn chỉ Tiếng Việt / English / theo ngôn ngữ trang và độ dài. Xem nhanh trong popup khi bấm icon, hoặc trong Side Panel đầy đủ.
+1. **Tóm tắt trang đang xem**: 1 câu TL;DR + 3/5/8 ý chính (từ khoá được tô sáng) + đoạn tóm tắt. Mặc định tóm tắt **song ngữ Anh–Việt** (mỗi câu tiếng Việt kèm bản tiếng Anh ngay bên dưới); có thể chọn chỉ Tiếng Việt / English / theo ngôn ngữ trang và độ dài. Xem nhanh trong popup khi bấm icon, hoặc trong Side Panel đầy đủ.
 2. **Dịch song ngữ Anh ⇄ Việt ngay trên trang**: bản dịch chèn ngay dưới từng đoạn (kiểu Immersive Translate), tự nhận diện chiều dịch theo từng đoạn, chỉ dịch phần sắp cuộn tới để tiết kiệm. Kèm dịch đoạn đã bôi đen (chuột phải) và ô dịch nhanh trong panel.
 
 ## Cài đặt (chế độ developer)
@@ -73,6 +73,7 @@ Extension **không có máy chủ riêng**, không có analytics, không thu th�
 |---|---|---|
 | Tóm tắt (popup, Side Panel, nút nổi, `Alt+S`, menu chuột phải) | Tiêu đề, URL và chữ của bài (hoặc đoạn đang bôi đen), tối đa 12.000 / 20.000 / 32.000 ký tự tuỳ độ dài | Nhà cung cấp AI bạn chọn. Mặc định là OpenRouter, nơi chuyển tiếp tới nhà cung cấp của model |
 | Tóm tắt ở chế độ **Song ngữ** (mặc định) | Thêm: bản tóm tắt tiếng Việt (không phải cả trang) để dịch sang tiếng Anh | `translate.googleapis.com` (Google Translate). Nếu Google lỗi thì gửi cho nhà cung cấp AI |
+| Tóm tắt mà AI trả lời sai ngôn ngữ (vd. trang tiếng Trung → tóm tắt tiếng Trung) | Thêm: bản tóm tắt đó để dịch sang ngôn ngữ đã chọn | Chế độ **Song ngữ**: Google Translate, lỗi thì nhà cung cấp AI. Chế độ *Tiếng Việt* / *English*: chỉ nhà cung cấp AI |
 | Bật dịch song ngữ trang, dịch đoạn chọn, dịch nhanh | Chữ của các đoạn cần dịch | Bộ máy dịch đang chọn: Google (mặc định) hoặc nhà cung cấp AI |
 | Kiểm tra kết nối | Một câu kiểm tra ngắn | Nhà cung cấp AI |
 | Tải danh sách model miễn phí / để trống ô Model | Không gửi dữ liệu của bạn (chỉ đọc danh sách model công khai) | `openrouter.ai` |

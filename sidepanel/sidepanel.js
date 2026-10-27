@@ -118,7 +118,8 @@ function formatStats(st) {
   const parts = [`⏱ ${sec(st.totalMs)}`];
   if (st.ttfbMs !== undefined) parts.push(`chữ đầu ${sec(st.ttfbMs)}`);
   parts.push(`đọc trang ${st.extractMs} ms (${st.method})`, `AI ${sec(st.llmMs)}`);
-  if (st.translateMs !== undefined) parts.push(`dịch EN ${sec(st.translateMs)} (${st.translatedBy || "lỗi"})`);
+  if (st.relangBy !== undefined) parts.push(`AI sai ngôn ngữ → dịch lại (${st.relangBy || "lỗi"})`);
+  if (st.translatedBy !== undefined) parts.push(`dịch EN ${sec(st.translateMs)} (${st.translatedBy || "lỗi"})`);
   if (st.inTok || st.outTok) parts.push(`${st.inTok ?? "?"} → ${st.outTok ?? "?"} token`);
   if (st.model) parts.push(st.model);
   return parts.join(" · ");
