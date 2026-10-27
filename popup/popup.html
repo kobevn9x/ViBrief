@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ViBrief</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><img src="../icons/icon48.png" alt="" width="22" height="22" /><span>ViBrief</span></div>
+  </header>
+
+  <main class="panel">
+    <div class="page-card">
+      <div class="page-title" id="pageTitle">—</div>
+      <div class="page-host" id="pageHost"></div>
+    </div>
+
+    <div id="status" class="status" hidden></div>
+
+    <article id="result" class="result" hidden></article>
+
+    <button class="btn primary block" id="btnOpenPanel" disabled>Mở bảng đầy đủ</button>
+  </main>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

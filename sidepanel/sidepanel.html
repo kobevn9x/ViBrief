@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ViBrief</title>
+  <link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><img src="../icons/icon48.png" alt="" width="22" height="22" /><span>ViBrief</span></div>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="summary" aria-selected="true">Tóm tắt</button>
+      <button role="tab" data-tab="translate">Dịch</button>
+      <button role="tab" data-tab="settings" aria-label="Cài đặt">Cài đặt</button>
+    </nav>
+  </header>
+
+  <!-- ============ TÓM TẮT ============ -->
+  <section class="panel" id="tab-summary">
+    <div class="page-card">
+      <div class="page-label" id="pageLabel">Tóm tắt cho</div>
+      <div class="page-title" id="pageTitle">—</div>
+      <div class="page-host" id="pageHost"></div>
+    </div>
+
+    <div class="row">
+      <select id="summaryLang" aria-label="Ngôn ngữ tóm tắt">
+        <option value="bi">Song ngữ Anh–Việt</option>
+        <option value="vi">Tiếng Việt</option>
+        <option value="en">English</option>
+        <option value="auto">Theo ngôn ngữ trang</option>
+      </select>
+      <select id="summaryLength" aria-label="Độ dài">
+        <option value="short">Ngắn</option>
+        <option value="medium">Vừa</option>
+        <option value="long">Chi tiết</option>
+      </select>
+    </div>
+    <button class="btn primary block" id="btnSummarize">Tóm tắt trang này</button>
+
+    <div id="summaryStatus" class="status" hidden></div>
+
+    <article id="summaryResult" class="result" hidden>
+      <div id="resBody"></div>
+      <p class="stats" id="resStats" hidden></p>
+      <div class="row end">
+        <button class="btn ghost" id="btnCopySummary">Sao chép</button>
+        <button class="btn ghost" id="btnResummarize">Tóm tắt lại</button>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============ DỊCH ============ -->
+  <section class="panel" id="tab-translate" hidden>
+    <div class="bili-card">
+      <div>
+        <div class="bili-title">Dịch song ngữ trang</div>
+        <div class="bili-sub" id="biliState">Đang tắt</div>
+      </div>
+      <button class="switch" id="btnBilingual" role="switch" aria-checked="false" aria-label="Bật/tắt dịch song ngữ"><span></span></button>
+    </div>
+    <div class="row">
+      <label class="field">Chiều dịch
+        <select id="translateDirection">
+          <option value="auto">Tự động (Anh ⇄ Việt)</option>
+          <option value="en2vi">Anh → Việt</option>
+          <option value="vi2en">Việt → Anh</option>
+        </select>
+      </label>
+      <label class="field">Bộ máy dịch
+        <select id="translateEngine">
+          <option value="google">Google (miễn phí)</option>
+          <option value="llm">AI (dùng API key)</option>
+        </select>
+      </label>
+    </div>
+    <p class="hint">Phím tắt: <kbd>Alt</kbd>+<kbd>T</kbd> bật/tắt · Chuột phải → “Dịch đoạn đã chọn”.</p>
+
+    <h3>Dịch nhanh văn bản</h3>
+    <textarea id="qtInput" rows="5" placeholder="Dán hoặc gõ văn bản tiếng Anh / tiếng Việt…"></textarea>
+    <div class="row">
+      <button class="btn primary" id="btnQuickTranslate">Dịch</button>
+      <span class="qt-dir" id="qtDir"></span>
+    </div>
+    <div class="qt-out" id="qtOutput" hidden></div>
+    <div class="row end"><button class="btn ghost" id="btnCopyQt" hidden>Sao chép</button></div>
+  </section>
+
+  <!-- ============ CÀI ĐẶT ============ -->
+  <section class="panel" id="tab-settings" hidden>
+    <label class="field">Nhà cung cấp AI (dùng cho tóm tắt)
+      <select id="provider">
+        <option value="openrouter">OpenRouter (model miễn phí)</option>
+        <option value="openai">OpenAI</option>
+        <option value="anthropic">Anthropic (Claude)</option>
+        <option value="gemini">Google Gemini</option>
+        <option value="compat">OpenAI-compatible (Ollama, LM Studio…)</option>
+      </select>
+    </label>
+    <label class="field" id="baseUrlField" hidden>Base URL
+      <input id="compatBaseUrl" type="url" placeholder="http://localhost:11434/v1" />
+    </label>
+    <label class="field">API key
+      <input id="apiKey" type="password" autocomplete="off" spellcheck="false" placeholder="Dán API key…" />
+    </label>
+    <label class="field">Model
+      <input id="model" type="text" spellcheck="false" list="modelList" />
+      <datalist id="modelList"></datalist>
+    </label>
+    <button class="btn ghost" id="btnFreeModels" hidden>Tải danh sách model miễn phí</button>
+    <label class="check"><input type="checkbox" id="autoSummarize" /> Tự động tóm tắt khi mở bảng / đổi trang</label>
+    <label class="field">Giao diện
+      <select id="theme">
+        <option value="default">Mặc định (xanh lá)</option>
+        <option value="pink">Trắng hồng dịu</option>
+      </select>
+    </label>
+    <label class="check"><input type="checkbox" id="showFab" /> Hiện nút tóm tắt nổi trên trang</label>
+    <div class="row">
+      <button class="btn primary" id="btnSave">Lưu</button>
+      <button class="btn ghost" id="btnTest">Kiểm tra kết nối</button>
+    </div>
+    <div id="settingsStatus" class="status" hidden></div>
+    <p class="hint">API key chỉ lưu trên máy bạn (chrome.storage.local) và chỉ gửi tới nhà cung cấp đã chọn. Dịch bằng Google không cần key.</p>
+    <p class="credit">Phát triển bởi <a href="https://github.com/kobevn9x" target="_blank" rel="noopener">Kobe</a> · v<span id="appVersion"></span></p>
+  </section>
+
+  <script type="module" src="sidepanel.js"></script>
+</body>
+</html>

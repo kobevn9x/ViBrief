@@ -1,0 +1,76 @@
+/* Bản dịch chèn dưới mỗi đoạn */
+.tldrvi-tr {
+  display: block !important;
+  margin: 0.35em 0 0.2em !important;
+  padding: 0 0 0 0.6em !important;
+  border-left: 2px solid #2f9e7a !important;
+  color: inherit !important;
+  opacity: 0.82;
+  font-size: 0.95em !important;
+  font-weight: inherit;
+  font-style: normal !important;
+  line-height: 1.55 !important;
+  text-align: start !important;
+  white-space: normal !important;
+  background: none !important;
+}
+h1 > .tldrvi-tr, h2 > .tldrvi-tr, h3 > .tldrvi-tr { font-size: 0.8em !important; }
+li > .tldrvi-tr, td > .tldrvi-tr, th > .tldrvi-tr { border-left-width: 2px !important; }
+
+/* Đoạn đang chờ dịch */
+[data-tldrvi="loading"] { background-image: linear-gradient(90deg, rgba(47,158,122,0.10), rgba(47,158,122,0)); }
+
+/* Badge trạng thái góc phải dưới */
+.tldrvi-badge {
+  position: fixed !important;
+  right: 16px; bottom: 16px;
+  z-index: 2147483646 !important;
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 8px 7px 12px;
+  border-radius: 999px;
+  background: #13201b; color: #eaf5f0;
+  font: 500 12px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+.tldrvi-badge-dot { width: 8px; height: 8px; border-radius: 50%; background: #3ccf9b; }
+.tldrvi-badge.is-busy .tldrvi-badge-dot { animation: tldrvi-pulse 0.9s ease-in-out infinite; }
+.tldrvi-badge.is-error .tldrvi-badge-dot { background: #ff6b5a; }
+.tldrvi-badge button {
+  all: unset; cursor: pointer;
+  padding: 4px 10px; border-radius: 999px;
+  background: rgba(255,255,255,0.12); color: inherit; font: inherit;
+}
+.tldrvi-badge button:hover { background: rgba(255,255,255,0.22); }
+@keyframes tldrvi-pulse { 50% { opacity: 0.3; } }
+
+/* Popup dịch đoạn đã chọn */
+.tldrvi-pop {
+  position: absolute !important;
+  z-index: 2147483647 !important;
+  width: min(380px, calc(100vw - 24px));
+  max-height: 60vh; overflow: auto;
+  border-radius: 10px;
+  background: #ffffff; color: #1c2421;
+  border: 1px solid #d5e2dc;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+  font: 14px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+  text-align: left;
+}
+.tldrvi-pop-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 10px; border-bottom: 1px solid #e6eeea;
+  font-size: 12px; font-weight: 600; color: #2f7a60;
+}
+.tldrvi-pop-actions { display: flex; gap: 4px; }
+.tldrvi-pop button {
+  all: unset; cursor: pointer; padding: 2px 8px; border-radius: 6px;
+  font: 500 12px system-ui, sans-serif; color: #44524c;
+}
+.tldrvi-pop button:hover { background: #eef4f1; }
+.tldrvi-pop-body { padding: 10px 12px 12px; white-space: pre-wrap; }
+@media (prefers-color-scheme: dark) {
+  .tldrvi-pop { background: #1b2420; color: #e6efeb; border-color: #33423b; }
+  .tldrvi-pop-head { border-color: #2c3833; color: #6fd3ad; }
+  .tldrvi-pop button { color: #c5d3cd; }
+  .tldrvi-pop button:hover { background: #26322d; }
+}

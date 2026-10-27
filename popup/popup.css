@@ -1,0 +1,95 @@
+:root {
+  --bg: #f7f9f8;
+  --surface: #ffffff;
+  --border: #dfe7e3;
+  --text: #17201c;
+  --muted: #5d6b65;
+  --accent: #23845f;
+  --accent-ink: #ffffff;
+  --accent-soft: #e4f3ec;
+  --mark: #fff1b8;
+  --danger: #c2412f;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111715;
+    --surface: #18201d;
+    --border: #2a3530;
+    --text: #e5eeea;
+    --muted: #93a39c;
+    --accent: #3fbf8c;
+    --accent-ink: #08130e;
+    --accent-soft: #1d3329;
+    --mark: #4a4220;
+    --danger: #ff806e;
+  }
+}
+/* Giao diện "Trắng hồng dịu": luôn sáng, đặt sau khối dark để thắng ở cả hai chế độ */
+:root[data-theme="pink"] {
+  --bg: #fff7fa;
+  --surface: #ffffff;
+  --border: #f5d3e0;
+  --text: #3b2a31;
+  --muted: #775966;
+  --accent: #b23c6b;
+  --accent-ink: #ffffff;
+  --accent-soft: #fde7f0;
+  --mark: #ffd6e5;
+  --danger: #c2412f;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  width: 380px; max-height: 560px; overflow-y: auto;
+  background: var(--bg); color: var(--text);
+  font: 14px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.top {
+  position: sticky; top: 0; z-index: 2;
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; background: var(--surface); border-bottom: 1px solid var(--border);
+}
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 700; letter-spacing: .2px; }
+
+.panel { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 10px; }
+h3 { margin: 6px 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
+
+.page-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; }
+.page-title { font-weight: 600; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.page-host { font-size: 12px; color: var(--muted); }
+
+.btn { font: inherit; font-weight: 600; border-radius: 8px; padding: 8px 14px; cursor: pointer; border: 1px solid transparent; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn.primary:disabled { opacity: .55; cursor: progress; }
+.btn.block { width: 100%; }
+
+.status { font-size: 13px; padding: 9px 11px; border-radius: 8px; background: var(--accent-soft); }
+.status[hidden] { display: none; }
+.status.error { background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--danger); }
+.status.loading::before {
+  content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 8px; vertical-align: -1px;
+  border: 2px solid var(--accent); border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.result { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.result[hidden] { display: none; }
+.tldr { margin: 0; font-weight: 600; font-size: 15px; padding-left: 10px; border-left: 3px solid var(--accent); }
+.bullets { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.para { margin: 0; }
+.note { margin: 0; font-size: 12px; color: var(--muted); }
+mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3px; }
+.alt { display: block; margin-top: 2px; font-size: .92em; color: var(--muted); }
+.tldr .alt { font-weight: 400; }
+/* con trỏ nhấp nháy sau chữ đang stream */
+#result.streaming > .tldr:last-child::after,
+#result.streaming > .bullets:last-child > li:last-child::after,
+#result.streaming > .para:last-child::after {
+  content: ""; display: inline-block; width: .45em; height: 1em; margin-left: 2px; vertical-align: -.15em;
+  background: var(--accent); border-radius: 1px; animation: caret 1s steps(1) infinite;
+}
+@keyframes caret { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { #result.streaming *::after { animation: none !important; } }
