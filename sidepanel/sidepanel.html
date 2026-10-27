@@ -75,7 +75,7 @@
         </select>
       </label>
     </div>
-    <p class="hint">Phím tắt: <kbd>Alt</kbd>+<kbd>T</kbd> bật/tắt · Chuột phải → “Dịch đoạn đã chọn”.</p>
+    <p class="hint">Phím tắt: <span id="hintBilingual"><kbd>Alt</kbd>+<kbd>T</kbd></span> bật/tắt · Chuột phải → “Dịch đoạn đã chọn”.</p>
 
     <h3>Dịch nhanh văn bản</h3>
     <textarea id="qtInput" rows="5" placeholder="Dán hoặc gõ văn bản tiếng Anh / tiếng Việt…"></textarea>
@@ -122,6 +122,9 @@
       <button class="btn ghost" id="btnTest">Kiểm tra kết nối</button>
     </div>
     <div id="settingsStatus" class="status" hidden></div>
+    <h3>Phím tắt</h3>
+    <ul class="shortcuts" id="shortcutList"></ul>
+    <button class="btn ghost" id="btnShortcuts">Đổi phím tắt</button>
     <p class="hint">API key chỉ lưu trên máy bạn (chrome.storage.local) và chỉ gửi tới nhà cung cấp đã chọn. Dịch bằng Google không cần key.</p>
     <p class="credit">Phát triển bởi <a href="https://github.com/kobevn9x" target="_blank" rel="noopener">Kobe</a> · v<span id="appVersion"></span></p>
   </section>

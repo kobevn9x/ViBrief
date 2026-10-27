@@ -4,6 +4,7 @@ import { canAccess } from "../lib/extract.js";
 import { renderSummaryHTML, summaryToPlainText, getCachedSummary } from "../lib/summary-view.js";
 import { streamSummary, frameThrottle } from "../lib/summary-client.js";
 import { targetFor } from "../lib/translate.js";
+import { SHORTCUT_LABELS, getShortcuts, shortcutNodes, openShortcutsPage } from "../lib/shortcuts.js";
 
 const $ = (id) => document.getElementById(id);
 let settings = await getSettings();
@@ -329,6 +330,24 @@ $("btnTest").addEventListener("click", async () => {
 });
 
 $("appVersion").textContent = chrome.runtime.getManifest().version;
+
+// phím tắt đang gán thật (Chrome không gán nếu trùng extension khác; người dùng có thể đổi/xoá)
+async function renderShortcuts() {
+  const keys = await getShortcuts();
+  $("shortcutList").replaceChildren(...Object.entries(SHORTCUT_LABELS).map(([name, label]) => {
+    const li = document.createElement("li");
+    const key = document.createElement("span");
+    if (keys[name]) key.append(...shortcutNodes(keys[name]));
+    else Object.assign(key, { className: "unset", textContent: "Chưa gán" });
+    li.append(Object.assign(document.createElement("span"), { textContent: label }), key);
+    return li;
+  }));
+  const bili = keys["toggle-bilingual"];
+  $("hintBilingual").replaceChildren(...(bili ? shortcutNodes(bili) : [document.createTextNode("(chưa gán phím)")]));
+}
+renderShortcuts();
+window.addEventListener("focus", renderShortcuts); // quay lại sau khi đổi ở chrome://extensions/shortcuts
+$("btnShortcuts").addEventListener("click", () => openShortcutsPage());
 
 // ---------------------------------------------------------------- tab events
 chrome.tabs.onActivated.addListener(async ({ windowId }) => {

@@ -132,6 +132,9 @@ select:focus, input:focus, textarea:focus { outline: 2px solid var(--accent); ou
 .switch:disabled { opacity: .5; cursor: not-allowed; }
 
 .hint { margin: 0; font-size: 12px; color: var(--muted); }
+.shortcuts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.shortcuts li { display: flex; justify-content: space-between; gap: 8px; }
+.shortcuts .unset { color: var(--danger); font-weight: 600; }
 kbd { font: 11px ui-monospace, monospace; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; background: var(--surface); }
 .qt-dir { font-size: 12px; color: var(--muted); }
 .qt-out { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; white-space: pre-wrap; }

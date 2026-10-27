@@ -12,7 +12,7 @@ Extension Chrome (Manifest V3) lấy cảm hứng từ *TLDR Summarizer AI*, g�
 3. Bấm **Load unpacked** → chọn thư mục vừa giải nén.
 4. Ghim icon ViBrief lên thanh công cụ.
 5. Lấy API key **miễn phí** tại <https://openrouter.ai/keys> (cần tạo tài khoản OpenRouter).
-6. Mở Side Panel (`Alt+S` hoặc bấm icon → **Mở bảng đầy đủ**) → tab **Cài đặt** → nhà cung cấp mặc định là **OpenRouter (model miễn phí)**, dán API key → **Lưu** → **Kiểm tra kết nối**.
+6. Mở Side Panel (bấm icon hoặc `Alt+S` → **Mở bảng đầy đủ**) → tab **Cài đặt** → nhà cung cấp mặc định là **OpenRouter (model miễn phí)**, dán API key → **Lưu** → **Kiểm tra kết nối**.
 
 Dịch bằng Google không cần key – dùng được ngay sau khi cài.
 
@@ -23,22 +23,29 @@ Dịch bằng Google không cần key – dùng được ngay sau khi cài.
 | Việc | Thao tác |
 |---|---|
 | Tóm tắt ngay trên trang | Bấm **nút nổi** ở giữa cạnh phải màn hình → thẻ tóm tắt song ngữ hiện ngay cạnh nút (✕ hoặc `Esc` để đóng) |
-| Tóm tắt nhanh | Bấm icon trên thanh công cụ → popup hiện tóm tắt ngay cho trang đang xem |
+| Tóm tắt nhanh | Bấm icon trên thanh công cụ hoặc `Alt+S` → popup hiện tóm tắt ngay cho trang đang xem |
 | Mở bảng đầy đủ | Trong popup bấm **Mở bảng đầy đủ** → mở Side Panel (Tóm tắt · Dịch · Cài đặt) |
-| Tóm tắt trong Side Panel | `Alt+S`, hoặc chuột phải → *Tóm tắt trang này*, hoặc **Tóm tắt trang này** trong panel |
+| Tóm tắt trong Side Panel | Chuột phải → *Tóm tắt trang này*, hoặc **Tóm tắt trang này** trong panel |
 | Tóm tắt 1 phần trang | Bôi đen đoạn > 300 ký tự rồi bấm Tóm tắt |
 | Bật/tắt song ngữ | Tab **Dịch** → công tắc, hoặc `Alt+T`, hoặc chuột phải → *Dịch song ngữ trang này*; tắt bằng nút **Tắt** ở badge góc phải dưới |
 | Dịch đoạn chọn | Bôi đen → chuột phải → *Dịch đoạn đã chọn* (popup nổi, có nút Sao chép) |
 | Dịch nhanh | Tab **Dịch** → dán văn bản → **Dịch** (`Ctrl+Enter`) |
 
-Đổi phím tắt tại `chrome://extensions/shortcuts`.
+Phím tắt đang dùng hiện ở cuối popup và trong tab **Cài đặt** → **Phím tắt** (ghi *Chưa gán* nếu Chrome không gán được, thường do trùng với extension khác). Bấm **Đổi phím tắt** (hoặc mở `chrome://extensions/shortcuts`) để đặt lại.
+
+### Dịch song ngữ trên trang
+
+- Bản dịch hiện ngay dưới từng đoạn. Chữ ngắn trong menu, thanh điều hướng, tab, ô bảng… được dịch **cùng dòng** (vd. *Home · Trang chủ*) để không làm vỡ bố cục trang.
+- Dịch cả nội dung trong web component (Shadow DOM), nội dung ẩn khi mới bật (tab, mục thu gọn — dịch khi bạn mở ra) và nội dung trang tự cập nhật. Không dịch nội dung trong iframe, ô nhập liệu, khối code.
+- Đoạn dịch lỗi (vd. Google tạm giới hạn lượt gọi) được tự thử lại; số đoạn lỗi hiện trên badge góc phải dưới.
+- Sau khi cập nhật/tải lại extension, chỉ cần bật lại song ngữ (không cần tải lại trang).
 
 Ngôn ngữ tóm tắt: **Song ngữ Anh–Việt** (mặc định) · Tiếng Việt · English · Theo ngôn ngữ trang. Nút **Sao chép** chép cả phần tiếng Việt và phần tiếng Anh.
 
 ### Nút tóm tắt nổi
 
 - Hiện trên mọi trang web (trừ trang hệ thống của Chrome, Chrome Web Store và PDF). Nút chỉ dựng giao diện, **không đọc nội dung trang cho tới khi bạn bấm**.
-- Kết quả dùng chung bộ nhớ đệm với popup và Side Panel. Nút **Mở bảng đầy đủ** trong thẻ mở Side Panel (nếu Chrome không cho, dùng `Alt+S`).
+- Kết quả dùng chung bộ nhớ đệm với popup và Side Panel. Nút **Mở bảng đầy đủ** trong thẻ mở Side Panel (nếu Chrome không cho, nhấn `Alt+S` rồi bấm **Mở bảng đầy đủ** trong popup).
 - Tắt nút: tab **Cài đặt** → bỏ chọn **Hiện nút tóm tắt nổi trên trang** (áp dụng ngay, không cần tải lại trang).
 - Sau khi cập nhật/tải lại extension, cần tải lại các trang đang mở để nút hoạt động lại.
 
@@ -71,7 +78,7 @@ Extension **không có máy chủ riêng**, không có analytics, không thu th�
 
 | Khi bạn… | Dữ liệu được gửi | Gửi tới |
 |---|---|---|
-| Tóm tắt (popup, Side Panel, nút nổi, `Alt+S`, menu chuột phải) | Tiêu đề, URL và chữ của bài (hoặc đoạn đang bôi đen), tối đa 12.000 / 20.000 / 32.000 ký tự tuỳ độ dài | Nhà cung cấp AI bạn chọn. Mặc định là OpenRouter, nơi chuyển tiếp tới nhà cung cấp của model |
+| Tóm tắt (popup / `Alt+S`, Side Panel, nút nổi, menu chuột phải) | Tiêu đề, URL và chữ của bài (hoặc đoạn đang bôi đen), tối đa 12.000 / 20.000 / 32.000 ký tự tuỳ độ dài | Nhà cung cấp AI bạn chọn. Mặc định là OpenRouter, nơi chuyển tiếp tới nhà cung cấp của model |
 | Tóm tắt ở chế độ **Song ngữ** (mặc định) | Thêm: bản tóm tắt tiếng Việt (không phải cả trang) để dịch sang tiếng Anh | `translate.googleapis.com` (Google Translate). Nếu Google lỗi thì gửi cho nhà cung cấp AI |
 | Tóm tắt mà AI trả lời sai ngôn ngữ (vd. trang tiếng Trung → tóm tắt tiếng Trung) | Thêm: bản tóm tắt đó để dịch sang ngôn ngữ đã chọn | Chế độ **Song ngữ**: Google Translate, lỗi thì nhà cung cấp AI. Chế độ *Tiếng Việt* / *English*: chỉ nhà cung cấp AI |
 | Bật dịch song ngữ trang, dịch đoạn chọn, dịch nhanh | Chữ của các đoạn cần dịch | Bộ máy dịch đang chọn: Google (mặc định) hoặc nhà cung cấp AI |

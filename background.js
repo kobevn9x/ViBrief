@@ -33,9 +33,12 @@ export async function toggleBilingual(tabId, force) {
   return result;
 }
 
+// sidePanel.open chỉ chạy khi còn user gesture: phải gọi trước mọi await trong handler
+// (await trước đó làm Chrome từ chối mở panel mà không báo gì ra giao diện).
 async function openPanelAndSummarize(tab) {
-  await chrome.storage.session.set({ pendingSummarize: tab.id });
+  const pending = chrome.storage.session.set({ pendingSummarize: tab.id });
   await chrome.sidePanel.open({ windowId: tab.windowId });
+  await pending;
   chrome.runtime.sendMessage({ type: "summarize-now", tabId: tab.id }).catch(() => {});
 }
 
@@ -57,12 +60,13 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   }
 });
 
+// Alt+S là "_execute_action" (Chrome tự mở popup, không qua onCommand)
 chrome.commands.onCommand.addListener(async (command, tab) => {
+  if (command !== "toggle-bilingual") return;
   if (!tab?.id) [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id) return;
   try {
-    if (command === "toggle-bilingual") await toggleBilingual(tab.id);
-    if (command === "summarize-page") await openPanelAndSummarize(tab);
+    await toggleBilingual(tab.id);
   } catch (e) {
     console.warn("ViBrief:", e);
   }

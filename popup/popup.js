@@ -2,6 +2,7 @@ import { getSettings, hasLLMKey } from "../lib/settings.js";
 import { canAccess } from "../lib/extract.js";
 import { renderSummaryHTML, getCachedSummary } from "../lib/summary-view.js";
 import { streamSummary, frameThrottle } from "../lib/summary-client.js";
+import { getShortcuts, shortcutNodes, openShortcutsPage } from "../lib/shortcuts.js";
 
 const $ = (id) => document.getElementById(id);
 const btnOpen = $("btnOpenPanel");
@@ -33,6 +34,23 @@ btnOpen.addEventListener("click", () => {
   chrome.sidePanel.open({ windowId })
     .then(() => window.close())
     .catch((e) => setStatus(e?.message || String(e), "error"));
+});
+
+// Dòng phím tắt: cho biết Alt+S (mở popup này) có đang được gán không
+getShortcuts().then((keys) => {
+  const line = $("shortcutLine");
+  const act = keys._execute_action, bili = keys["toggle-bilingual"];
+  if (act) {
+    line.append("Phím tắt: ", ...shortcutNodes(act), " mở popup này");
+    if (bili) line.append(" · ", ...shortcutNodes(bili), " song ngữ");
+  } else {
+    line.classList.add("warn");
+    line.append("Chưa gán phím tắt mở popup. ");
+    const btn = Object.assign(document.createElement("button"), { type: "button", textContent: "Đặt phím tắt" });
+    btn.addEventListener("click", () => openShortcutsPage().then(() => window.close()));
+    line.append(btn);
+  }
+  line.hidden = false;
 });
 
 try {

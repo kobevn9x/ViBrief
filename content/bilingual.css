@@ -1,21 +1,4 @@
-/* Bản dịch chèn dưới mỗi đoạn */
-.tldrvi-tr {
-  display: block !important;
-  margin: 0.35em 0 0.2em !important;
-  padding: 0 0 0 0.6em !important;
-  border-left: 2px solid #2f9e7a !important;
-  color: inherit !important;
-  opacity: 0.82;
-  font-size: 0.95em !important;
-  font-weight: inherit;
-  font-style: normal !important;
-  line-height: 1.55 !important;
-  text-align: start !important;
-  white-space: normal !important;
-  background: none !important;
-}
-h1 > .tldrvi-tr, h2 > .tldrvi-tr, h3 > .tldrvi-tr { font-size: 0.8em !important; }
-li > .tldrvi-tr, td > .tldrvi-tr, th > .tldrvi-tr { border-left-width: 2px !important; }
+/* Kiểu của bản dịch (.tldrvi-tr) nằm trong TR_CSS của bilingual.js: được chèn cả vào shadow root */
 
 /* Đoạn đang chờ dịch */
 [data-tldrvi="loading"] { background-image: linear-gradient(90deg, rgba(47,158,122,0.10), rgba(47,158,122,0)); }
