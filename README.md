@@ -127,10 +127,6 @@ Extension **không có máy chủ riêng**, không có analytics, không thu th�
 - Dịch song ngữ ổn định hơn: dịch được link dạng khối, thẻ tự định nghĩa, chữ nằm cạnh danh sách con, nội dung trong Shadow DOM, nội dung ẩn lúc bật (tab, mục thu gọn) và nội dung trang tự cập nhật; tự thử lại khi Google giới hạn lượt gọi.
 - Chữ ngắn trong menu, thanh điều hướng, tab, ô bảng được dịch cùng dòng (vd. *Home · Trang chủ*) để không vỡ bố cục.
 
-## Ý tưởng mở rộng
-
-Hỏi đáp về trang · tóm tắt video YouTube qua transcript · tải PDF bằng pdf.js · bảng thuật ngữ riêng (MES, SQL…) đưa vào prompt dịch AI.
-
 ---
 
 Phát triển bởi [Kobe](https://github.com/kobevn9x).
