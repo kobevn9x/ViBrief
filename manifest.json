@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "ViBrief – Tóm tắt & Dịch song ngữ Anh–Việt",
-  "short_name": "ViBrief",
-  "version": "1.2.0",
+  "name": "Lan Brieft – Tóm tắt & Dịch song ngữ Anh–Việt",
+  "short_name": "Lan Brieft",
+  "version": "1.2.1",
   "description": "Tóm tắt trang web đang xem và dịch song ngữ Anh ⇄ Việt ngay trên trang.",
   "icons": {
     "16": "icons/icon16.png",
@@ -10,7 +10,7 @@
     "128": "icons/icon128.png"
   },
   "action": {
-    "default_title": "ViBrief – tóm tắt nhanh",
+    "default_title": "Lan Brieft – tóm tắt nhanh",
     "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "icons/icon16.png",

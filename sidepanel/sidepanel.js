@@ -75,7 +75,8 @@ async function refreshPage() {
 
 // ---------------------------------------------------------------- summary
 // Việc tóm tắt chạy ở background (dùng chung cache + yêu cầu đang chạy với popup và nút nổi)
-async function runSummary(force = false) {
+// scope "auto": đoạn đang bôi đen (đủ dài) nếu có, không thì cả trang; "selection": bắt buộc đoạn chọn
+async function runSummary(force = false, scope = "auto") {
   if (!currentTab) return;
   if (!hasLLMKey(settings)) {
     setStatus($("summaryStatus"), "Chưa có API key. Vào tab Cài đặt để nhập key OpenRouter (miễn phí) hoặc OpenAI / Claude / Gemini.", "error");
@@ -96,7 +97,7 @@ async function runSummary(force = false) {
   });
   let res;
   try {
-    res = await streamSummary({ tabId: tab.id, force, onPartial });
+    res = await streamSummary({ tabId: tab.id, force, scope, onPartial });
   } catch (e) {
     if (stale()) return;
     $("btnSummarize").disabled = false;
@@ -126,7 +127,9 @@ function formatStats(st) {
   return parts.join(" · ");
 }
 
+let shownFromSelection = false;
 function renderSummary(r) {
+  shownFromSelection = Boolean(r.fromSelection);
   $("pageLabel").textContent = r.fromSelection ? "Tóm tắt đoạn đã chọn trên" : "Tóm tắt cho";
   $("resBody").innerHTML = renderSummaryHTML(r); // lib đã escape HTML trước khi chèn <mark>
   $("resBody").classList.toggle("streaming", Boolean(r.streaming));
@@ -138,7 +141,8 @@ function renderSummary(r) {
 }
 
 $("btnSummarize").addEventListener("click", () => runSummary());
-$("btnResummarize").addEventListener("click", () => runSummary(true));
+// "Tóm tắt lại" chỉ làm lại bản đang hiện: bản cả trang thì bỏ qua đoạn đang bôi đen
+$("btnResummarize").addEventListener("click", () => runSummary(true, shownFromSelection ? "selection" : "page"));
 $("btnCopySummary").addEventListener("click", (e) => copy($("summaryResult").dataset.plain, e.target));
 
 for (const id of ["summaryLang", "summaryLength"]) {
@@ -364,7 +368,7 @@ chrome.runtime.onMessage.addListener((msg) => {
   if (msg?.type === "summarize-now") {
     showTab("summary");
     chrome.storage.session.remove("pendingSummarize");
-    refreshPage().then(runSummary);
+    refreshPage().then(() => runSummary(false, msg.selection ? "selection" : "auto"));
   }
 });
 
@@ -372,5 +376,8 @@ await refreshPage();
 const { pendingSummarize } = await chrome.storage.session.get("pendingSummarize");
 if (pendingSummarize) {
   await chrome.storage.session.remove("pendingSummarize");
-  if (pendingSummarize === currentTab?.id && $("summaryResult").hidden) runSummary();
+  // từ menu "Tóm tắt đoạn đã chọn": luôn chạy (kể cả khi đang hiện bản cả trang từ cache)
+  if (pendingSummarize.tabId === currentTab?.id && (pendingSummarize.selection || $("summaryResult").hidden)) {
+    runSummary(false, pendingSummarize.selection ? "selection" : "auto");
+  }
 }

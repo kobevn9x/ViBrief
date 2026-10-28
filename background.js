@@ -1,6 +1,6 @@
 import { getSettings, hasLLMKey } from "./lib/settings.js";
 import { translateBatch } from "./lib/translate.js";
-import { canAccess, extractPage } from "./lib/extract.js";
+import { canAccess, extractPage, getSelectionText, isLongSelection, MIN_SELECTION } from "./lib/extract.js";
 import { summarizePage } from "./lib/summarize.js";
 import { renderSummaryHTML, getCachedSummary, setCachedSummary, clearCachedSummary, cacheKey } from "./lib/summary-view.js";
 
@@ -12,6 +12,7 @@ chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create({ id: "tldrvi-page", title: "Dịch song ngữ trang này (Anh ⇄ Việt)", contexts: ["page"] });
     chrome.contextMenus.create({ id: "tldrvi-selection", title: "Dịch đoạn đã chọn: \"%s\"", contexts: ["selection"] });
     chrome.contextMenus.create({ id: "tldrvi-summarize", title: "Tóm tắt trang này", contexts: ["page"] });
+    chrome.contextMenus.create({ id: "tldrvi-summarize-selection", title: "Tóm tắt đoạn đã chọn", contexts: ["selection"] });
   });
 });
 
@@ -35,11 +36,11 @@ export async function toggleBilingual(tabId, force) {
 
 // sidePanel.open chỉ chạy khi còn user gesture: phải gọi trước mọi await trong handler
 // (await trước đó làm Chrome từ chối mở panel mà không báo gì ra giao diện).
-async function openPanelAndSummarize(tab) {
-  const pending = chrome.storage.session.set({ pendingSummarize: tab.id });
+async function openPanelAndSummarize(tab, { selection = false } = {}) {
+  const pending = chrome.storage.session.set({ pendingSummarize: { tabId: tab.id, selection } });
   await chrome.sidePanel.open({ windowId: tab.windowId });
   await pending;
-  chrome.runtime.sendMessage({ type: "summarize-now", tabId: tab.id }).catch(() => {});
+  chrome.runtime.sendMessage({ type: "summarize-now", tabId: tab.id, selection }).catch(() => {});
 }
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
@@ -47,6 +48,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   try {
     if (info.menuItemId === "tldrvi-page") await toggleBilingual(tab.id, true);
     if (info.menuItemId === "tldrvi-summarize") await openPanelAndSummarize(tab);
+    if (info.menuItemId === "tldrvi-summarize-selection") await openPanelAndSummarize(tab, { selection: true });
     if (info.menuItemId === "tldrvi-selection") {
       await ensureBilingual(tab.id);
       await chrome.scripting.executeScript({
@@ -56,7 +58,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       });
     }
   } catch (e) {
-    console.warn("ViBrief:", e);
+    console.warn("Lan Brieft:", e);
   }
 });
 
@@ -68,7 +70,7 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
   try {
     await toggleBilingual(tab.id);
   } catch (e) {
-    console.warn("ViBrief:", e);
+    console.warn("Lan Brieft:", e);
   }
 });
 
@@ -78,21 +80,32 @@ const inflight = new Map();
 const PARTIAL_EVERY_MS = 50; // gửi bản dở dang tối đa ~20 lần/giây
 
 /**
- * Tóm tắt 1 tab: cache → gộp yêu cầu trùng → lấy nội dung → gọi AI (stream) → ghi cache + số đo.
+ * Tóm tắt 1 tab: đoạn bôi đen → cache → gộp yêu cầu trùng → lấy nội dung → gọi AI (stream) → ghi cache + số đo.
+ * scope: "auto" (đoạn chọn > MIN_SELECTION ký tự thì tóm tắt đoạn đó, không thì cả trang),
+ *   "selection" (bắt buộc có đoạn chọn đủ dài), "page" (bỏ qua đoạn chọn).
  * onPartial (tuỳ chọn) nhận kết quả dở dang trong lúc AI đang trả lời.
  */
-async function summarizeTab(tab, { force = false, onPartial } = {}) {
+async function summarizeTab(tab, { force = false, scope = "auto", onPartial } = {}) {
   const s = await getSettings();
   if (!canAccess(tab)) throw new Error("Không thể đọc trang này.");
-  if (force) await clearCachedSummary(s, tab.url);
-  else {
-    const cached = await getCachedSummary(s, tab.url);
-    if (cached) return { result: cached, cached: true };
+  // đọc đoạn chọn TRƯỚC cache: trang đã tóm tắt rồi vẫn tóm tắt được riêng đoạn vừa bôi đen
+  const sel = scope === "page" ? "" : await getSelectionText(tab.id).catch(() => "");
+  const useSel = isLongSelection(sel);
+  if (scope === "selection" && !useSel) {
+    throw new Error(sel ? `Hãy bôi đen đoạn dài hơn ${MIN_SELECTION} ký tự để tóm tắt.` : "Đoạn bôi đen đã bị bỏ chọn – hãy bôi đen lại.");
+  }
+  if (!useSel) {
+    if (force) await clearCachedSummary(s, tab.url);
+    else {
+      const cached = await getCachedSummary(s, tab.url);
+      if (cached) return { result: cached, cached: true };
+    }
   }
   if (!hasLLMKey(s)) {
-    throw new Error("Chưa có API key. Bấm icon ViBrief → Mở bảng đầy đủ → Cài đặt để nhập key OpenRouter (miễn phí).");
+    throw new Error("Chưa có API key. Bấm icon Lan Brieft → Mở bảng đầy đủ → Cài đặt để nhập key OpenRouter (miễn phí).");
   }
-  const key = cacheKey(s, tab.url);
+  // đoạn chọn không lưu cache và không gộp với yêu cầu tóm tắt cả trang
+  const key = useSel ? `sel|${tab.url}|${sel}` : cacheKey(s, tab.url);
   let job = inflight.get(key);
   if (!job) {
     job = { partial: null, listeners: new Set() };
@@ -112,14 +125,16 @@ async function summarizeTab(tab, { force = false, onPartial } = {}) {
     };
     job.promise = (async () => {
       const t0 = performance.now();
-      const page = await extractPage(tab.id);
+      const page = useSel
+        ? { title: tab.title || "", url: tab.url, text: sel, fromSelection: true, method: "selection" }
+        : await extractPage(tab.id);
       const extractMs = Math.round(performance.now() - t0);
       const res = await summarizePage(s, page, { onUpdate });
       clearTimeout(timer);
       res.fromSelection = page.fromSelection;
       res.stats = { method: page.method, extractMs, pageMs: page.pageMs, ...res.stats, totalMs: Math.round(performance.now() - t0) };
       if (res.stats.ttfbMs !== undefined) res.stats.ttfbMs += extractMs; // tính từ lúc bấm
-      console.info("ViBrief: tóm tắt", tab.url, res.stats);
+      console.info("Lan Brieft: tóm tắt", tab.url, res.stats);
       if (!page.fromSelection) await setCachedSummary(s, tab.url, res);
       return res;
     })();
@@ -149,7 +164,9 @@ async function targetTab(sender, tabId) {
   return tab;
 }
 
-// Kênh "summarize": client gửi {tabId?, force?}; background gửi lại
+const SCOPES = new Set(["auto", "selection", "page"]);
+
+// Kênh "summarize": client gửi {tabId?, force?, scope?}; background gửi lại
 // {type:"partial", result, html} nhiều lần rồi {type:"done", result, html, cached} hoặc {type:"error", error}.
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name !== "summarize") return;
@@ -164,6 +181,7 @@ chrome.runtime.onConnect.addListener((port) => {
       const tab = await targetTab(port.sender, msg?.tabId);
       const { result, cached } = await summarizeTab(tab, {
         force: Boolean(msg?.force),
+        scope: SCOPES.has(msg?.scope) ? msg.scope : "auto",
         onPartial: (p) => post({ type: "partial", result: p, html: renderSummaryHTML(p) })
       });
       post({ type: "done", result, cached, html: renderSummaryHTML(result) });
@@ -196,7 +214,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     // dạng không stream (chờ kết quả cuối); giao diện dùng kênh "summarize" ở trên
     (async () => {
       const tab = await targetTab(sender, msg.tabId);
-      const { result, cached } = await summarizeTab(tab, { force: Boolean(msg.force) });
+      const { result, cached } = await summarizeTab(tab, { force: Boolean(msg.force), scope: SCOPES.has(msg.scope) ? msg.scope : "auto" });
       return { ok: true, result, cached, html: renderSummaryHTML(result) };
     })().then(sendResponse, (e) => sendResponse({ ok: false, error: e?.message || String(e) }));
     return true;

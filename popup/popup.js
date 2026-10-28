@@ -1,5 +1,5 @@
 import { getSettings, hasLLMKey } from "../lib/settings.js";
-import { canAccess } from "../lib/extract.js";
+import { canAccess, getSelectionText, isLongSelection } from "../lib/extract.js";
 import { renderSummaryHTML, getCachedSummary } from "../lib/summary-view.js";
 import { streamSummary, frameThrottle } from "../lib/summary-client.js";
 import { getShortcuts, shortcutNodes, openShortcutsPage } from "../lib/shortcuts.js";
@@ -69,15 +69,18 @@ try {
   if (!canAccess(tab)) {
     setStatus("Không thể đọc trang này (trang hệ thống của Chrome, Chrome Web Store hoặc file PDF).", "error");
   } else {
-    const cached = await getCachedSummary(settings, tab.url);
+    // đang bôi đen đoạn đủ dài → chỉ tóm tắt đoạn đó (không dùng cache của cả trang)
+    const useSel = isLongSelection(await getSelectionText(tab.id).catch(() => ""));
+    if (useSel) $("pageHost").textContent = "Đoạn đã chọn · " + $("pageHost").textContent;
+    const cached = !useSel && (await getCachedSummary(settings, tab.url));
     if (cached) {
       render(cached);
     } else if (!hasLLMKey(settings)) {
       setStatus("Chưa có API key. Bấm “Mở bảng đầy đủ” → tab Cài đặt để nhập key OpenRouter (miễn phí) hoặc OpenAI / Claude / Gemini.", "error");
     } else {
       // chạy ở background (đóng popup giữa chừng vẫn tóm tắt xong và lưu cache); chữ hiện dần khi AI đang viết
-      setStatus("Đang đọc trang…", "loading");
-      const { result } = await streamSummary({ tabId: tab.id, onPartial: renderPartial });
+      setStatus(useSel ? "Đang đọc đoạn đã chọn…" : "Đang đọc trang…", "loading");
+      const { result } = await streamSummary({ tabId: tab.id, scope: useSel ? "selection" : "page", onPartial: renderPartial });
       done = true;
       render(result);
     }

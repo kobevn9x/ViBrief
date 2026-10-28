@@ -1,4 +1,4 @@
-# ViBrief – Tóm tắt & Dịch song ngữ Anh ⇄ Việt
+# Lan Brieft – Tóm tắt & Dịch song ngữ Anh ⇄ Việt
 
 Extension Chrome (Manifest V3) lấy cảm hứng từ *TLDR Summarizer AI*, gồm 2 chức năng:
 
@@ -10,13 +10,13 @@ Extension Chrome (Manifest V3) lấy cảm hứng từ *TLDR Summarizer AI*, g�
 1. Vào mục [**Releases**](https://github.com/kobevn9x/ViBrief/releases), tải file `vibrief-x.y.z.zip` của bản mới nhất rồi giải nén (hoặc bấm **Code → Download ZIP** ở trang chính).
 2. Mở `chrome://extensions` → bật **Developer mode** (góc phải trên).
 3. Bấm **Load unpacked** → chọn thư mục vừa giải nén.
-4. Ghim icon ViBrief lên thanh công cụ.
+4. Ghim icon Lan Brieft lên thanh công cụ.
 5. Lấy API key **miễn phí** tại <https://openrouter.ai/keys> (cần tạo tài khoản OpenRouter).
 6. Mở Side Panel (bấm icon hoặc `Alt+S` → **Mở bảng đầy đủ**) → tab **Cài đặt** → nhà cung cấp mặc định là **OpenRouter (model miễn phí)**, dán API key → **Lưu** → **Kiểm tra kết nối**.
 
 Dịch bằng Google không cần key – dùng được ngay sau khi cài.
 
-**Cập nhật lên bản mới:** tải file zip mới ở Releases, giải nén đè lên thư mục cũ, rồi bấm nút tải lại (⟳) trên thẻ ViBrief trong `chrome://extensions`. Cài đặt và API key đã lưu vẫn giữ nguyên.
+**Cập nhật lên bản mới:** tải file zip mới ở Releases, giải nén đè lên thư mục cũ, rồi bấm nút tải lại (⟳) trên thẻ Lan Brieft trong `chrome://extensions`. Cài đặt và API key đã lưu vẫn giữ nguyên.
 
 ## Cách dùng
 
@@ -26,7 +26,7 @@ Dịch bằng Google không cần key – dùng được ngay sau khi cài.
 | Tóm tắt nhanh | Bấm icon trên thanh công cụ hoặc `Alt+S` → popup hiện tóm tắt ngay cho trang đang xem |
 | Mở bảng đầy đủ | Trong popup bấm **Mở bảng đầy đủ** → mở Side Panel (Tóm tắt · Dịch · Cài đặt) |
 | Tóm tắt trong Side Panel | Chuột phải → *Tóm tắt trang này*, hoặc **Tóm tắt trang này** trong panel |
-| Tóm tắt 1 phần trang | Bôi đen đoạn > 300 ký tự rồi bấm Tóm tắt |
+| Tóm tắt đoạn bôi đen | Kéo chuột bôi đen đoạn > 100 ký tự → bấm nút **Tóm tắt đoạn này** hiện ngay cạnh vùng chọn (hoặc chuột phải → *Tóm tắt đoạn đã chọn*) |
 | Bật/tắt song ngữ | Tab **Dịch** → công tắc, hoặc `Alt+T`, hoặc chuột phải → *Dịch song ngữ trang này*; tắt bằng nút **Tắt** ở badge góc phải dưới |
 | Dịch đoạn chọn | Bôi đen → chuột phải → *Dịch đoạn đã chọn* (popup nổi, có nút Sao chép) |
 | Dịch nhanh | Tab **Dịch** → dán văn bản → **Dịch** (`Ctrl+Enter`) |
@@ -40,11 +40,18 @@ Phím tắt đang dùng hiện ở cuối popup và trong tab **Cài đặt** �
 - Đoạn dịch lỗi (vd. Google tạm giới hạn lượt gọi) được tự thử lại; số đoạn lỗi hiện trên badge góc phải dưới.
 - Sau khi cập nhật/tải lại extension, chỉ cần bật lại song ngữ (không cần tải lại trang).
 
+### Tóm tắt đoạn bôi đen
+
+- Bôi đen một đoạn **dài hơn 100 ký tự** → nút nhỏ **Tóm tắt đoạn này** hiện ngay dưới vùng chọn; bấm vào thì thẻ tóm tắt hiện cạnh đoạn đó và **chỉ đoạn đó** được gửi cho AI.
+- Khi đang bôi đen đoạn đủ dài, nút nổi, popup (icon hoặc `Alt+S`), nút **Tóm tắt trang này** trong Side Panel và chuột phải → *Tóm tắt đoạn đã chọn* cũng chỉ tóm tắt đoạn đó. Đoạn ngắn hơn 100 ký tự thì không hiện nút và vẫn tóm tắt cả trang.
+- Đoạn ngắn được tóm tắt gọn hơn (ít ý hơn). Kết quả của đoạn chọn không lưu bộ nhớ đệm, nên không ảnh hưởng bản tóm tắt cả trang đã có.
+- Không hiện nút khi bôi đen trong ô nhập liệu. Nút ẩn đi khi bỏ chọn, cuộn trang hoặc nhấn `Esc`; tắt cùng tuỳ chọn **Hiện nút tóm tắt nổi trên trang**.
+
 Ngôn ngữ tóm tắt: **Song ngữ Anh–Việt** (mặc định) · Tiếng Việt · English · Theo ngôn ngữ trang. Nút **Sao chép** chép cả phần tiếng Việt và phần tiếng Anh.
 
 ### Nút tóm tắt nổi
 
-- Hiện trên mọi trang web (trừ trang hệ thống của Chrome, Chrome Web Store và PDF). Nút chỉ dựng giao diện, **không đọc nội dung trang cho tới khi bạn bấm**.
+- Hiện trên mọi trang web (trừ trang hệ thống của Chrome, Chrome Web Store và PDF). Nút chỉ dựng giao diện, **không đọc nội dung trang cho tới khi bạn bấm** (riêng đoạn bạn bôi đen thì chỉ được đo độ dài ngay trên máy để quyết định hiện nút **Tóm tắt đoạn này**, không gửi đi đâu).
 - Kết quả dùng chung bộ nhớ đệm với popup và Side Panel. Nút **Mở bảng đầy đủ** trong thẻ mở Side Panel (nếu Chrome không cho, nhấn `Alt+S` rồi bấm **Mở bảng đầy đủ** trong popup).
 - Tắt nút: tab **Cài đặt** → bỏ chọn **Hiện nút tóm tắt nổi trên trang** (áp dụng ngay, không cần tải lại trang).
 - Sau khi cập nhật/tải lại extension, cần tải lại các trang đang mở để nút hoạt động lại.
@@ -104,7 +111,21 @@ Extension **không có máy chủ riêng**, không có analytics, không thu th�
 - Không chạy trên `chrome://`, Chrome Web Store và trình xem PDF tích hợp (Chrome chặn script). Chưa có tải PDF lên như bản gốc.
 - Endpoint Google Translate dùng là endpoint web công khai (`translate.googleapis.com … client=gtx`), không có SLA; dịch nhiều có thể bị giới hạn tạm thời → chuyển sang bộ máy AI.
 - Model miễn phí của OpenRouter có giới hạn lượt gọi và danh sách model miễn phí có thể thay đổi theo thời gian.
-- Một số trang SPA vẽ lại DOM có thể làm mất bản dịch đã chèn; tắt/bật lại để dịch lại.
+- Trang SPA vẽ lại DOM liên tục: bản dịch được tự chèn lại tối đa 3 lần mỗi đoạn; sau đó tắt/bật lại song ngữ để dịch lại.
+- Tóm tắt đoạn bôi đen chỉ đọc vùng chọn ở trang chính (không đọc vùng chọn trong iframe hay trong ô nhập liệu).
+
+## Thay đổi
+
+### v1.2.1
+- Đổi tên hiển thị thành **Lan Brieft** (trước đây là ViBrief). Repo, link tải và tên file zip giữ nguyên; cài đặt và API key đã lưu không bị ảnh hưởng.
+- **Tóm tắt đoạn bôi đen**: bôi đen đoạn > 100 ký tự → nút **Tóm tắt đoạn này** hiện cạnh vùng chọn, thẻ kết quả hiện ngay tại đó và chỉ đoạn đó được gửi cho AI.
+- Nút nổi, popup / `Alt+S`, Side Panel và menu chuột phải mới *Tóm tắt đoạn đã chọn* đều tự nhận đoạn đang bôi đen (trước đây cần > 300 ký tự và hay trả lại bản tóm tắt cả trang đã lưu).
+- Đoạn ngắn được tóm tắt gọn hơn; tóm tắt đoạn chọn không ghi đè bộ nhớ đệm của cả trang.
+
+### v1.2.0
+- `Alt+S` mở popup tóm tắt nhanh (trước đây bấm không thấy gì vì Chrome chặn mở Side Panel). Phím tắt đang dùng hiện ở cuối popup và tab **Cài đặt → Phím tắt**, báo *Chưa gán* nếu bị trùng, có nút **Đổi phím tắt**.
+- Dịch song ngữ ổn định hơn: dịch được link dạng khối, thẻ tự định nghĩa, chữ nằm cạnh danh sách con, nội dung trong Shadow DOM, nội dung ẩn lúc bật (tab, mục thu gọn) và nội dung trang tự cập nhật; tự thử lại khi Google giới hạn lượt gọi.
+- Chữ ngắn trong menu, thanh điều hướng, tab, ô bảng được dịch cùng dòng (vd. *Home · Trang chủ*) để không vỡ bố cục.
 
 ## Ý tưởng mở rộng
 

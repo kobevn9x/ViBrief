@@ -4,9 +4,12 @@
   if (window.__tldrviFab) return;
   window.__tldrviFab = true;
 
-  const TITLE = "Tóm tắt trang này (ViBrief)";
+  const TITLE = "Tóm tắt trang này (Lan Brieft)";
   const MSG_RELOAD = "Extension vừa được cập nhật – hãy tải lại trang.";
   const MSG_PANEL_HINT = "Nhấn Alt+S rồi bấm “Mở bảng đầy đủ”.";
+  const SEL_TITLE = "Tóm tắt đoạn đã bôi đen (Lan Brieft)";
+  // đoạn bôi đen dài hơn ngần này ký tự mới tóm tắt riêng (bản sao của MIN_SELECTION trong lib/extract.js)
+  const MIN_SELECTION = 100;
   // icons/icon48.png dạng data URI (giữ đồng bộ nếu đổi icon)
   const ICON_48 = "data:image/png;base64,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";
 
@@ -87,6 +90,22 @@ button { font: inherit; color: inherit; }
   box-shadow: 0 12px 36px rgba(0, 0, 0, .22);
   overflow: hidden;
 }
+/* thẻ mở từ nút "Tóm tắt đoạn này": đặt cạnh vùng bôi đen (top/left/bottom do JS tính) */
+.card.at-sel { right: auto; transform: none; max-width: calc(100vw - 16px); }
+
+/* nút nhỏ hiện cạnh đoạn vừa bôi đen */
+.sel-btn {
+  position: fixed; z-index: 2147483647;
+  display: flex; align-items: center; gap: 6px; margin: 0;
+  padding: 4px 11px 4px 6px; border-radius: 999px;
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border); box-shadow: 0 4px 14px rgba(0, 0, 0, .18);
+  font-size: 13px; font-weight: 600; line-height: 20px; white-space: nowrap; cursor: pointer;
+}
+.sel-btn:hover { background: var(--accent-soft); }
+.sel-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sel-btn img { width: 18px; height: 18px; display: block; pointer-events: none; }
+
 .card-head {
   display: flex; align-items: center; gap: 8px; flex: none;
   padding: 9px 10px 9px 14px; background: var(--surface); border-bottom: 1px solid var(--border);
@@ -182,22 +201,27 @@ mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3
     const body = el("div", { class: "card-body", "aria-live": "polite" });
     const openBtn = el("button", { class: "btn primary block", type: "button", text: "Mở bảng đầy đủ" });
     const hint = el("p", { class: "hint", hidden: true });
-    const card = el("section", { class: "card", role: "dialog", "aria-label": "ViBrief", hidden: true }, [
+    const card = el("section", { class: "card", role: "dialog", "aria-label": "Lan Brieft", hidden: true }, [
       el("header", { class: "card-head" }, [
-        el("span", { class: "brand" }, [el("img", { src: iconURL, alt: "" }), "ViBrief"]),
+        el("span", { class: "brand" }, [el("img", { src: iconURL, alt: "" }), "Lan Brieft"]),
         closeBtn
       ]),
       body,
       el("footer", { class: "card-foot" }, [openBtn, hint])
     ]);
-    const root = el("div", { class: "root", "data-theme": "default", hidden: true }, [fab, card]);
+    const selBtn = el("button", { class: "sel-btn", type: "button", title: SEL_TITLE, "aria-label": SEL_TITLE, hidden: true }, [
+      el("img", { src: iconURL, alt: "" }),
+      "Tóm tắt đoạn này"
+    ]);
+    const root = el("div", { class: "root", "data-theme": "default", hidden: true }, [fab, card, selBtn]);
 
     shadow.append(el("style", { text: CSS }), root);
     document.documentElement.append(host);
 
     // ------------------------------------------------------------ trạng thái
-    let result = null; // { url, html } – kết quả gần nhất (dùng lại khi mở lại trên cùng URL)
-    let pendingURL = null; // URL đang được tóm tắt
+    let result = null; // { url, html } – kết quả cả trang gần nhất (dùng lại khi mở lại trên cùng URL)
+    let pendingKey = null; // "<scope>|<URL>" của lượt đang tóm tắt
+    let selAnchor = null; // vị trí dòng cuối của đoạn bôi đen (để đặt thẻ cạnh đó)
     let partialHTML = null; // chữ đang stream của lượt hiện tại
     let frame = 0;
 
@@ -217,14 +241,16 @@ mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3
     }
 
     // Tóm tắt qua kênh "summarize": background gửi chữ dần (partial) rồi kết quả cuối (done)
-    function summarize() {
+    // scope "page": cả trang (dùng cache); "selection": chỉ đoạn đang bôi đen (background tự đọc lại đoạn đó)
+    function summarize(scope = "page") {
       const url = location.href;
-      pendingURL = url;
+      const key = scope + "|" + url;
+      pendingKey = key;
       partialHTML = null;
-      showStatus("Đang đọc trang…", "loading");
+      showStatus(scope === "selection" ? "Đang đọc đoạn đã chọn…" : "Đang đọc trang…", "loading");
       const fail = (error) => {
-        if (pendingURL !== url) return;
-        pendingURL = null;
+        if (pendingKey !== key) return;
+        pendingKey = null;
         showStatus(error, "error");
       };
       let port;
@@ -237,13 +263,13 @@ mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3
       }
       let settled = false;
       port.onMessage.addListener((m) => {
-        if (pendingURL !== url) return; // đã chuyển trang (SPA) trong lúc chờ
+        if (pendingKey !== key) return; // đã chuyển trang (SPA) hoặc bắt đầu lượt khác trong lúc chờ
         if (m.type === "partial" && typeof m.html === "string") {
           partialHTML = m.html;
           if (!frame) {
             frame = requestAnimationFrame(() => {
               frame = 0;
-              if (pendingURL === url && partialHTML && !card.hidden) showResult(partialHTML, true);
+              if (pendingKey === key && partialHTML && !card.hidden) showResult(partialHTML, true);
             });
           }
           return;
@@ -251,9 +277,9 @@ mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3
         settled = true;
         port.disconnect();
         if (m.type === "done" && typeof m.html === "string") {
-          pendingURL = null;
+          pendingKey = null;
           partialHTML = null;
-          result = { url, html: m.html };
+          if (scope === "page") result = { url, html: m.html };
           if (location.href === url) showResult(m.html);
         } else {
           fail(m.error || "Có lỗi xảy ra.");
@@ -262,19 +288,42 @@ mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3
       port.onDisconnect.addListener(() => {
         if (!settled) fail(alive() ? "Mất kết nối với extension – hãy thử lại." : MSG_RELOAD);
       });
-      port.postMessage({});
+      port.postMessage({ scope });
     }
 
-    function openCard() {
+    // anchor: hình chữ nhật dòng cuối của đoạn chọn → thẻ đặt ngay dưới (hoặc trên) dòng đó;
+    // không đủ chỗ cả hai phía thì để vị trí mặc định cạnh nút nổi
+    function placeCard(anchor) {
+      card.classList.remove("at-sel");
+      card.style.cssText = "";
+      if (!anchor) return;
+      const below = innerHeight - anchor.bottom - 16, above = anchor.top - 16;
+      if (Math.max(below, above) < 200) return;
+      const w = Math.min(360, innerWidth - 16);
+      card.classList.add("at-sel");
+      card.style.left = Math.min(Math.max(8, anchor.left), innerWidth - w - 8) + "px";
+      if (below >= 200 || below >= above) {
+        card.style.top = anchor.bottom + 8 + "px";
+        card.style.maxHeight = Math.min(below, innerHeight * 0.7) + "px";
+      } else {
+        card.style.top = "auto";
+        card.style.bottom = innerHeight - anchor.top + 8 + "px";
+        card.style.maxHeight = Math.min(above, innerHeight * 0.7) + "px";
+      }
+    }
+
+    function openCard(scope = "page", anchor = null) {
       card.hidden = false;
       fab.setAttribute("aria-expanded", "true");
       hint.hidden = true;
+      placeCard(anchor);
       const url = location.href;
-      if (result?.url === url) showResult(result.html);
-      else if (pendingURL === url) {
+      if (scope === "selection") summarize("selection"); // đoạn chọn luôn tóm tắt mới (không cache)
+      else if (result?.url === url) showResult(result.html);
+      else if (pendingKey === "page|" + url) {
         if (partialHTML) showResult(partialHTML, true);
         else showStatus("Đang đọc trang…", "loading");
-      } else summarize();
+      } else summarize("page");
     }
     function closeCard() {
       card.hidden = true;
@@ -285,14 +334,66 @@ mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3
     // việc đó không được phép kích hoạt tóm tắt (tốn quota/tiền API key của người dùng).
     fab.addEventListener("click", (e) => {
       if (!e.isTrusted) return;
-      card.hidden ? openCard() : closeCard();
+      selBtn.hidden = true;
+      if (!card.hidden) closeCard();
+      else openCard(selectionInfo() ? "selection" : "page");
     });
+    selBtn.addEventListener("click", (e) => {
+      if (!e.isTrusted) return;
+      selBtn.hidden = true;
+      openCard("selection", selAnchor);
+    });
+    // bấm nút không được làm mất vùng bôi đen (background đọc lại đoạn chọn khi tóm tắt)
+    for (const b of [fab, selBtn]) b.addEventListener("mousedown", (e) => e.preventDefault());
+
+    // ------------------------------------------------------------ nút cạnh đoạn bôi đen
+    // Chỉ xem vùng chọn để quyết định hiện nút; chữ của trang không được gửi từ đây.
+    function selectionInfo() {
+      const sel = getSelection();
+      if (!sel || sel.isCollapsed || !sel.rangeCount) return null;
+      const node = sel.anchorNode;
+      const at = node?.nodeType === 1 ? node : node?.parentElement;
+      if (!at || at === host || host.contains(at) || at.isContentEditable) return null;
+      if (document.activeElement?.matches?.("input, textarea, select")) return null;
+      if (String(sel).replace(/\s+/g, " ").trim().length <= MIN_SELECTION) return null;
+      const range = sel.getRangeAt(0);
+      const rects = [...range.getClientRects()].filter((r) => r.width || r.height);
+      return { last: rects.length ? rects[rects.length - 1] : range.getBoundingClientRect() };
+    }
+
+    function updateSelBtn() {
+      const info = root.hidden ? null : selectionInfo();
+      if (!info) {
+        selBtn.hidden = true;
+        return;
+      }
+      selAnchor = info.last;
+      selBtn.hidden = false;
+      const w = selBtn.offsetWidth, h = selBtn.offsetHeight;
+      let top = info.last.bottom + 6;
+      if (top + h > innerHeight - 8) top = Math.max(8, info.last.top - h - 6);
+      selBtn.style.left = Math.min(Math.max(8, info.last.right - w), innerWidth - w - 8) + "px";
+      selBtn.style.top = top + "px";
+    }
+
+    document.addEventListener("mouseup", (e) => {
+      if (e.isTrusted && e.button === 0 && !e.composedPath().includes(host)) setTimeout(updateSelBtn, 0);
+    }, true);
+    document.addEventListener("keyup", (e) => {
+      if (e.isTrusted && (e.shiftKey || e.key === "Shift" || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a"))) setTimeout(updateSelBtn, 0);
+    }, true);
+    document.addEventListener("selectionchange", () => {
+      if (!selBtn.hidden && !selectionInfo()) selBtn.hidden = true;
+    });
+    window.addEventListener("scroll", () => { selBtn.hidden = true; }, { capture: true, passive: true });
     closeBtn.addEventListener("click", () => {
       closeCard();
       fab.focus();
     });
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && !card.hidden) closeCard();
+      if (e.key !== "Escape") return;
+      selBtn.hidden = true;
+      if (!card.hidden) closeCard();
     }, true);
 
     openBtn.addEventListener("click", async (e) => {
