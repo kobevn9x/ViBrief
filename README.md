@@ -28,7 +28,7 @@ Dịch bằng Google không cần key – dùng được ngay sau khi cài.
 | Mở bảng đầy đủ | Trong popup bấm **Mở bảng đầy đủ** → mở Side Panel (Tóm tắt · Dịch · Hỏi đáp · Cài đặt) |
 | Tóm tắt trong Side Panel | Chuột phải → *Tóm tắt trang này*, hoặc **Tóm tắt trang này** trong panel |
 | Tóm tắt đoạn bôi đen | Kéo chuột bôi đen đoạn > 100 ký tự → bấm nút **Tóm tắt đoạn này** hiện ngay cạnh vùng chọn (hoặc chuột phải → *Tóm tắt đoạn đã chọn*) |
-| Hỏi thêm về trang | Tab **Hỏi đáp** → nhập câu hỏi (`Enter` để gửi); hoặc bấm **Hỏi thêm** dưới bản tóm tắt. Trang thư (Gmail, Outlook…) có gợi ý ✉️ **Viết email phản hồi** |
+| Hỏi thêm về trang | Tab **Hỏi đáp** → nhập câu hỏi (`Enter` để gửi); hoặc bấm **Hỏi thêm** dưới bản tóm tắt. Thẻ ✉️ **Viết phản hồi** luôn có (email, ticket Freshdesk/Zendesk, tin nhắn…) |
 | Bật/tắt song ngữ | Tab **Dịch** → công tắc, hoặc `Alt+T`, hoặc chuột phải → *Dịch song ngữ trang này*; tắt bằng nút **Tắt** ở badge góc phải dưới |
 | Dịch đoạn chọn | Bôi đen → chuột phải → *Dịch đoạn đã chọn* (popup nổi, có nút Sao chép) |
 | Dịch nhanh | Tab **Dịch** → dán văn bản → **Dịch** (`Ctrl+Enter`) |
@@ -54,8 +54,10 @@ Ngôn ngữ tóm tắt: **Song ngữ Anh–Việt** (mặc định) · Tiếng V
 ### Hỏi đáp về trang
 
 - Tab **Hỏi đáp** trong Side Panel: hỏi thêm bất cứ điều gì về trang đang xem — AI đọc trực tiếp nội dung trang (tối đa 20.000 ký tự đầu) cùng bản tóm tắt bạn vừa đọc, nên trả lời được cả chi tiết không có trong bản tóm tắt. Nút **Hỏi thêm** dưới kết quả tóm tắt nhảy thẳng sang tab này.
-- Bấm một **thẻ gợi ý** trong tab Hỏi đáp là **gửi ngay** câu đó (không cần bấm Gửi); nội dung bạn đang gõ dở trong ô nhập được giữ nguyên. Riêng thẻ **✉️ Viết email phản hồi** chỉ điền sẵn câu vào ô nhập (con trỏ ở cuối) để bạn gõ thêm **phong cách trả lời** — vd. *lịch sự, ngắn gọn*, *thân mật*, *từ chối khéo* — rồi tự bấm Gửi.
-- Trên trang thư (Gmail, Outlook…), tab gợi ý luôn có thẻ **✉️ Viết email phản hồi**: AI nháp thư phản hồi cho **email đang mở trên màn hình** (nếu là chuỗi thư thì trả lời thư mới nhất), viết **theo ngôn ngữ của email** đó (trừ khi bạn yêu cầu ngôn ngữ khác), có dòng Tiêu đề và dùng `[chỗ trống]` cho ngày, giá, cam kết hay tên người gửi không có trong email — AI không tự bịa thông tin.
+- Bấm một **thẻ gợi ý** trong tab Hỏi đáp là **gửi ngay** câu đó (không cần bấm Gửi); nội dung bạn đang gõ dở trong ô nhập được giữ nguyên. Riêng thẻ **✉️ Viết phản hồi** chỉ điền sẵn câu vào ô nhập (con trỏ ở cuối) để bạn thêm **phong cách trả lời** rồi tự bấm Gửi.
+- Thẻ **✉️ Viết phản hồi** **luôn hiện** trong tab Hỏi đáp, không phụ thuộc loại trang: Gmail, Outlook, ticket Freshdesk / Zendesk / Help Scout…, hay bất kỳ trang có tin nhắn cần trả lời. Trang giống thư/helpdesk (nhận biết qua tên miền, đường dẫn và tiêu đề tab, không đọc nội dung trang) thì thẻ xếp đầu hàng, còn lại xếp cuối.
+- Chọn **phong cách** nhanh bằng các nút dưới thẻ: *Lịch sự · Ngắn gọn · Xin lỗi & giải thích · Từ chối khéo · Hỗ trợ khách hàng* (bấm nhiều nút để kết hợp), hoặc gõ tự do. Phong cách bạn dùng lần trước được điền sẵn cho lần sau.
+- **Bôi đen tin cần trả lời** (cả khi tin nằm trong iframe, như nội dung ticket) rồi bấm Gửi: AI trả lời đúng đoạn đó; thanh ngữ cảnh ghi "kèm đoạn bôi đen". Đoạn bôi đen (từ 20 ký tự) được giữ cho cả hội thoại cho tới khi bạn bôi đoạn khác hoặc bấm 🗑. Không bôi đen thì AI trả lời email đang mở trên màn hình; với chuỗi thư/ticket thì trả lời tin **mới nhất của người gửi/khách** (bỏ qua ghi chú nội bộ và các lần trả lời trước của bạn). Bản nháp viết **theo ngôn ngữ của tin cần trả lời** (trừ khi bạn yêu cầu khác), có dòng Tiêu đề, dùng `[chỗ trống]` cho ngày, giá, cam kết hay tên người gửi không có trong tin — AI không tự bịa thông tin. Nếu trang không có tin nào để trả lời, AI nói rõ và nhờ bạn bôi đen tin cần trả lời.
 - Nếu không đọc được nội dung trang, tab báo lỗi và **không gửi** câu hỏi (không để AI trả lời như thể chưa thấy trang); bấm ⟳ để đọc lại.
 - Trả lời hiện dần từng chữ; `Shift+Enter` xuống dòng; nút **Dừng** cắt giữa lúc trả lời nhưng giữ lại phần đã viết; mỗi câu trả lời có nút **Sao chép**.
 - Hội thoại nhiều lượt giữ nguyên ngữ cảnh, lưu tạm **theo từng trang** trong bộ nhớ phiên (mất khi đóng trình duyệt) — đóng và mở lại Side Panel trên cùng trang vẫn tiếp tục được. Nút ⟳ đọc lại nội dung trang, nút 🗑 xoá hội thoại ngay.
@@ -101,7 +103,7 @@ Extension **không có máy chủ riêng**, không có analytics, không thu th�
 | Tóm tắt ở chế độ **Song ngữ** (mặc định) | Thêm: bản tóm tắt tiếng Việt (không phải cả trang) để dịch sang tiếng Anh | `translate.googleapis.com` (Google Translate). Nếu Google lỗi thì gửi cho nhà cung cấp AI |
 | Tóm tắt mà AI trả lời sai ngôn ngữ (vd. trang tiếng Trung → tóm tắt tiếng Trung) | Thêm: bản tóm tắt đó để dịch sang ngôn ngữ đã chọn | Chế độ **Song ngữ**: Google Translate, lỗi thì nhà cung cấp AI. Chế độ *Tiếng Việt* / *English*: chỉ nhà cung cấp AI |
 | Bật dịch song ngữ trang, dịch đoạn chọn, dịch nhanh | Chữ của các đoạn cần dịch | Bộ máy dịch đang chọn: Google (mặc định) hoặc nhà cung cấp AI |
-| Hỏi đáp về trang (tab **Hỏi đáp**) | Câu hỏi của bạn + tiêu đề, URL, chữ của trang (tối đa 20.000 ký tự) + bản tóm tắt đang xem (nếu có) + các lượt hội thoại trước | Nhà cung cấp AI bạn chọn |
+| Hỏi đáp về trang (tab **Hỏi đáp**) | Câu hỏi của bạn + tiêu đề, URL, chữ của trang (tối đa 20.000 ký tự) + đoạn bạn đang bôi đen (nếu có, tối đa 8.000 ký tự) + bản tóm tắt đang xem (nếu có) + các lượt hội thoại trước | Nhà cung cấp AI bạn chọn |
 | Kiểm tra kết nối | Một câu kiểm tra ngắn | Nhà cung cấp AI |
 | Tải danh sách model miễn phí / để trống ô Model | Không gửi dữ liệu của bạn (chỉ đọc danh sách model công khai) | `openrouter.ai` |
 
@@ -128,6 +130,13 @@ Extension **không có máy chủ riêng**, không có analytics, không thu th�
 - Tóm tắt đoạn bôi đen chỉ đọc vùng chọn ở trang chính (không đọc vùng chọn trong iframe hay trong ô nhập liệu).
 
 ## Thay đổi
+
+### v1.3.2
+- Thẻ **✉️ Viết phản hồi** **luôn hiện** trong tab Hỏi đáp (trước đây chỉ trên webmail nên ticket Freshdesk/Zendesk… không có). Trang giống thư/helpdesk chỉ quyết định thẻ xếp đầu hay cuối hàng.
+- Thêm các nút **chọn nhanh phong cách** trả lời (Lịch sự, Ngắn gọn, Xin lỗi & giải thích, Từ chối khéo, Hỗ trợ khách hàng) và **nhớ phong cách** dùng lần trước.
+- **Bôi đen tin cần trả lời** (đọc cả iframe, như nội dung ticket): AI trả lời đúng đoạn đó, giữ cho cả hội thoại, xoá bằng 🗑; trang đọc lỗi mà có đoạn bôi đen thì vẫn gửi được.
+- Với chuỗi thư/ticket, AI trả lời tin **mới nhất của người gửi/khách**, bỏ qua ghi chú nội bộ; không có tin nào để trả lời thì nhờ bạn bôi đen.
+- Đoạn bôi đen được gửi cho nhà cung cấp AI khi hỏi đáp (tối đa 8.000 ký tự) — đã ghi vào bảng quyền riêng tư.
 
 ### v1.3.1
 - Tab **Hỏi đáp**: bấm thẻ gợi ý là **gửi ngay**, không cần bấm Gửi; chữ đang gõ dở trong ô nhập được giữ nguyên. Thẻ **✉️ Viết email phản hồi** là ngoại lệ: chỉ điền sẵn câu vào ô nhập để bạn thêm phong cách trả lời (lịch sự, ngắn gọn, từ chối khéo…) rồi tự bấm Gửi; AI làm theo phong cách bạn yêu cầu.

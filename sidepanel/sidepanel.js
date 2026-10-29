@@ -1,7 +1,7 @@
 import { getSettings, saveSettings, hasLLMKey } from "../lib/settings.js";
 import { callLLM, listOpenRouterFreeModels, resolveModel } from "../lib/llm.js";
-import { canAccess, extractPage } from "../lib/extract.js";
-import { chatWithPage, trimTurns, getCachedChat, setCachedChat, clearCachedChat } from "../lib/chat.js";
+import { canAccess, extractPage, getSelectionText } from "../lib/extract.js";
+import { chatWithPage, trimTurns, getCachedChat, setCachedChat, clearCachedChat, looksLikeMail, REPLY_PROMPT, REPLY_STYLES } from "../lib/chat.js";
 import { renderSummaryHTML, summaryToPlainText, getCachedSummary } from "../lib/summary-view.js";
 import { streamSummary, frameThrottle } from "../lib/summary-client.js";
 import { targetFor } from "../lib/translate.js";
@@ -253,8 +253,8 @@ $("btnCopyQt").addEventListener("click", (e) => copy($("qtOutput").textContent, 
 // ---------------------------------------------------------------- hỏi đáp
 // Chat với AI về trang đang xem (gọi thẳng lib/ như nút "Kiểm tra kết nối", không qua background).
 // Hội thoại + nội dung trang đã đọc lưu trong chrome.storage.session theo url – mở lại panel trên cùng trang thì còn nguyên.
-const WEBMAIL = /(^|\.)(mail\.google\.com|gmail\.com|outlook\.(com|live\.com|office\.com|office365\.com)|mail\.yahoo\.com|zoho\.(com|mail)|proton\.(me|mail\.com)|webmail\.[a-z0-9.-]+)$/i;
-let chatCtx = { url: null, host: "", page: null, turns: [] }; // ngữ cảnh + lịch sử của trang đang xem
+const MIN_SELECTION_CHARS = 20; // đoạn bôi đen ngắn hơn coi như bôi nhầm, không đưa vào chat
+let chatCtx = { url: null, page: null, selection: "", turns: [] }; // ngữ cảnh + lịch sử của trang đang xem
 let chatAbort = null; // AbortController của lượt đang trả lời (null = rảnh)
 
 function escapeHTML(s) {
@@ -332,28 +332,54 @@ function renderChatEmpty() {
   p.textContent = "Hỏi thêm về trang này – ví dụ:";
   const chips = document.createElement("div");
   chips.className = "chips";
-  // [nhãn, câu hỏi, soạn thêm?]: thẻ thường gửi ngay; thẻ "soạn thêm" chỉ điền vào ô nhập để người dùng thêm yêu cầu rồi tự bấm Gửi
+  // [nhãn, câu hỏi]: thẻ thường gửi ngay
   const ideas = [
     ["Tóm tắt ngắn gọn hơn", "Tóm tắt lại nội dung trang này ngắn gọn hơn."],
     ["Giải thích thêm chi tiết", "Giải thích thêm chi tiết về nội dung trang này."]
-  ];
-  if (chatCtx.host && WEBMAIL.test(chatCtx.host)) {
-    ideas.unshift(["✉️ Viết email phản hồi", "Viết giúp tôi một email phản hồi email trong trang này. Phong cách: ", true]);
-  }
-  for (const [label, q, compose] of ideas) {
+  ].map(([label, q]) => {
     const b = document.createElement("button");
     b.className = "chip";
     b.textContent = label;
-    b.addEventListener("click", () => {
-      if (!compose) return sendChat(q); // gửi ngay; đang bận thì sendChat bỏ qua
-      const input = $("chatInput");
-      input.value = q;
-      input.focus();
-      input.setSelectionRange(q.length, q.length); // con trỏ ở cuối: gõ tiếp phong cách trả lời
-      p.textContent = "Thêm phong cách trả lời (vd: lịch sự, ngắn gọn, thân mật, từ chối khéo…) rồi bấm Gửi.";
-    });
-    chips.append(b);
-  }
+    b.addEventListener("click", () => sendChat(q)); // gửi ngay; đang bận thì sendChat bỏ qua
+    return b;
+  });
+
+  // thẻ "Viết phản hồi" luôn hiện (email, ticket Freshdesk, tin nhắn…); chỉ điền sẵn ô nhập để người dùng thêm
+  // phong cách trả lời rồi tự bấm Gửi. Trang giống thư/helpdesk (looksLikeMail) thì xếp đầu hàng, còn lại xếp cuối.
+  let presets = null;
+  const reply = document.createElement("button");
+  reply.className = "chip";
+  reply.textContent = "✉️ Viết phản hồi";
+  reply.title = "Soạn thư/ticket/tin nhắn phản hồi – bôi đen tin cần trả lời để chọn đúng tin";
+  reply.addEventListener("click", () => {
+    const input = $("chatInput");
+    const q = REPLY_PROMPT + (settings.replyStyle || ""); // nhớ phong cách lần trước
+    input.value = q;
+    input.focus();
+    input.setSelectionRange(q.length, q.length); // con trỏ ở cuối: gõ tiếp phong cách trả lời
+    p.textContent = "Bôi đen tin cần trả lời (nếu cần), thêm phong cách rồi bấm Gửi:";
+    if (presets) return;
+    presets = document.createElement("div");
+    presets.className = "chips presets";
+    for (const [label, text] of REPLY_STYLES) {
+      const s = document.createElement("button");
+      s.className = "chip";
+      s.textContent = label;
+      s.addEventListener("click", () => {
+        let v = input.value.startsWith(REPLY_PROMPT) ? input.value : REPLY_PROMPT; // chưa bấm thẻ ✉️ / đã sửa câu → bắt đầu lại
+        if (!v.includes(text)) v = v.trimEnd().endsWith(":") ? v.trimEnd() + " " + text : v.replace(/[\s,]+$/, "") + ", " + text;
+        input.value = v;
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+      });
+      presets.append(s);
+    }
+    box.append(presets);
+  });
+  if (looksLikeMail(currentTab)) ideas.unshift(reply);
+  else ideas.push(reply);
+
+  chips.append(...ideas);
   box.append(p, chips);
   $("chatLog").append(box);
 }
@@ -379,6 +405,7 @@ function updateChatCtxBar() {
   if (!t || !canAccess(t)) note.textContent = "không đọc được nội dung trang này";
   else if (chatCtx.page) note.textContent = "đã đọc nội dung trang";
   else note.textContent = "sẽ đọc trang khi bạn hỏi";
+  if (t && canAccess(t) && chatCtx.selection) note.textContent += ` · kèm đoạn bôi đen (${chatCtx.selection.length.toLocaleString("vi-VN")} ký tự)`;
 }
 
 // đổi trang: huỷ lượt đang gửi, nạp hội thoại đã lưu của url mới (nếu có)
@@ -388,12 +415,11 @@ async function resetChatForPage() {
   setChatBusy(false);
   const t = currentTab;
   const url = t?.url || null;
-  let host = "";
-  try { host = new URL(url).hostname; } catch { /* ignore */ }
-  const next = { url, host, page: null, turns: [] };
+  const next = { url, page: null, selection: "", turns: [] };
   const cached = url ? await getCachedChat(url) : null;
   if (cached && Array.isArray(cached.turns)) {
     next.page = cached.page || null;
+    next.selection = cached.selection || "";
     next.turns = cached.turns;
   }
   if (url !== currentTab?.url) return; // đã đổi tab tiếp trong lúc đọc cache
@@ -405,7 +431,7 @@ async function resetChatForPage() {
 async function saveChatSession(ctx = chatCtx) {
   if (!ctx.url) return;
   if (!ctx.turns.length) await clearCachedChat(ctx.url);
-  else await setCachedChat(ctx.url, { url: ctx.url, title: currentTab?.title, page: ctx.page, turns: ctx.turns });
+  else await setCachedChat(ctx.url, { url: ctx.url, title: currentTab?.title, page: ctx.page, selection: ctx.selection, turns: ctx.turns });
 }
 
 // đọc nội dung trang một lần cho tới khi đổi trang / bấm đọc lại
@@ -461,9 +487,17 @@ async function sendChat(override) {
     }
   };
 
-  const pageOk = await ensureChatPage(ctx);
-  if (abort.signal.aborted || ctx !== chatCtx || !pageOk) {
-    release(); // bấm Dừng / đổi trang / đọc trang lỗi (đã báo lỗi): không gửi, câu đang gõ vẫn còn
+  // đoạn đang bôi đen trên trang (thư/ticket cần trả lời; quét cả iframe) → ngữ cảnh dính theo hội thoại cho tới khi bôi đoạn khác / bấm 🗑
+  if (canAccess(currentTab)) {
+    const sel = await getSelectionText(currentTab.id, { allFrames: true }).catch(() => "");
+    if (sel.replace(/\s+/g, " ").trim().length >= MIN_SELECTION_CHARS && ctx === chatCtx) {
+      ctx.selection = sel.slice(0, 8000);
+      updateChatCtxBar();
+    }
+  }
+  const pageOk = ctx === chatCtx && !abort.signal.aborted ? await ensureChatPage(ctx) : false;
+  if (abort.signal.aborted || ctx !== chatCtx || (!pageOk && !ctx.selection)) {
+    release(); // bấm Dừng / đổi trang / đọc trang lỗi mà không có đoạn bôi đen (đã báo lỗi): không gửi, câu đang gõ vẫn còn
     return;
   }
 
@@ -490,6 +524,7 @@ async function sendChat(override) {
     const reply = await chatWithPage(settings, {
       page: ctx.page,
       brief,
+      selection: ctx.selection,
       turns,
       onDelta: (d) => {
         acc += d;
@@ -505,6 +540,10 @@ async function sendChat(override) {
       chatScroll();
     }
     await saveChatSession(ctx); // đổi tab giữa chừng: vẫn lưu vào hội thoại của trang cũ
+    if (text.startsWith(REPLY_PROMPT)) {
+      // nhớ phong cách trả lời cho lần bấm thẻ ✉️ sau (không chờ, lỗi lưu không làm hỏng câu trả lời)
+      saveSettings({ replyStyle: text.slice(REPLY_PROMPT.length).trim().slice(0, 200) }).then((s) => (settings = s)).catch(() => {});
+    }
   } catch (e) {
     if (e.name === "AbortError") {
       // bấm "Dừng" / đổi trang: giữ câu hỏi + phần đã viết (nếu có) trong hội thoại
@@ -547,8 +586,10 @@ $("btnChatRefresh").addEventListener("click", async () => {
 $("btnChatClear").addEventListener("click", async () => {
   chatAbort?.abort();
   chatCtx.turns = [];
+  chatCtx.selection = ""; // đoạn bôi đen thuộc về hội thoại cũ (vd. thư đã trả lời xong)
   if (chatCtx.url) await clearCachedChat(chatCtx.url);
   renderChatLog(); // giữ nguyên nội dung trang đã đọc
+  updateChatCtxBar();
 });
 $("btnAskMore").addEventListener("click", () => {
   showTab("chat");
