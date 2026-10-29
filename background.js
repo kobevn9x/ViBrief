@@ -219,6 +219,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     })().then(sendResponse, (e) => sendResponse({ ok: false, error: e?.message || String(e) }));
     return true;
   }
+  if (msg?.type === "translate-selection") {
+    // từ nút "Dịch đoạn này" của nút nổi: chỉ dịch được vùng chọn của chính tab gửi
+    (async () => {
+      if (!sender.tab?.id) throw new Error("Không thể dịch trang này.");
+      await ensureBilingual(sender.tab.id);
+      await chrome.scripting.executeScript({ target: { tabId: sender.tab.id }, func: () => window.__tldrvi.showSelection("") });
+      return { ok: true };
+    })().then(sendResponse, (e) => sendResponse({ ok: false, error: e?.message || String(e) }));
+    return true;
+  }
   if (msg?.type === "open-panel") {
     // Gọi ngay (không await trước) để còn giữ user gesture từ cú bấm trên trang
     try {

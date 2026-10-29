@@ -28,6 +28,7 @@ Dịch bằng Google không cần key – dùng được ngay sau khi cài.
 | Mở bảng đầy đủ | Trong popup bấm **Mở bảng đầy đủ** → mở Side Panel (Tóm tắt · Dịch · Hỏi đáp · Cài đặt) |
 | Tóm tắt trong Side Panel | Chuột phải → *Tóm tắt trang này*, hoặc **Tóm tắt trang này** trong panel |
 | Tóm tắt đoạn bôi đen | Kéo chuột bôi đen đoạn > 100 ký tự → bấm nút **Tóm tắt đoạn này** hiện ngay cạnh vùng chọn (hoặc chuột phải → *Tóm tắt đoạn đã chọn*) |
+| Dịch đoạn bôi đen | Cùng chỗ đó có nút **Dịch đoạn này** (popup dịch Anh ⇄ Việt, có nút Sao chép); đoạn ngắn hơn thì chuột phải → *Dịch đoạn đã chọn* |
 | Hỏi thêm về trang | Tab **Hỏi đáp** → nhập câu hỏi (`Enter` để gửi); hoặc bấm **Hỏi thêm** dưới bản tóm tắt. Thẻ ✉️ **Viết phản hồi** luôn có (email, ticket Freshdesk/Zendesk, tin nhắn…) |
 | Bật/tắt song ngữ | Tab **Dịch** → công tắc, hoặc `Alt+T`, hoặc chuột phải → *Dịch song ngữ trang này*; tắt bằng nút **Tắt** ở badge góc phải dưới |
 | Dịch đoạn chọn | Bôi đen → chuột phải → *Dịch đoạn đã chọn* (popup nổi, có nút Sao chép) |
@@ -44,7 +45,7 @@ Phím tắt đang dùng hiện ở cuối popup và trong tab **Cài đặt** �
 
 ### Tóm tắt đoạn bôi đen
 
-- Bôi đen một đoạn **dài hơn 100 ký tự** → nút nhỏ **Tóm tắt đoạn này** hiện ngay dưới vùng chọn; bấm vào thì thẻ tóm tắt hiện cạnh đoạn đó và **chỉ đoạn đó** được gửi cho AI.
+- Bôi đen một đoạn **dài hơn 100 ký tự** → hai nút nhỏ **Tóm tắt đoạn này** và **Dịch đoạn này** hiện ngay dưới vùng chọn; bấm tóm tắt thì thẻ kết quả hiện cạnh đoạn đó và **chỉ đoạn đó** được gửi cho AI, bấm dịch thì popup bản dịch hiện ngay dưới đoạn.
 - Khi đang bôi đen đoạn đủ dài, nút nổi, popup (icon hoặc `Alt+S`), nút **Tóm tắt trang này** trong Side Panel và chuột phải → *Tóm tắt đoạn đã chọn* cũng chỉ tóm tắt đoạn đó. Đoạn ngắn hơn 100 ký tự thì không hiện nút và vẫn tóm tắt cả trang.
 - Đoạn ngắn được tóm tắt gọn hơn (ít ý hơn). Kết quả của đoạn chọn không lưu bộ nhớ đệm, nên không ảnh hưởng bản tóm tắt cả trang đã có.
 - Không hiện nút khi bôi đen trong ô nhập liệu. Nút ẩn đi khi bỏ chọn, cuộn trang hoặc nhấn `Esc`; tắt cùng tuỳ chọn **Hiện nút tóm tắt nổi trên trang**.
@@ -65,7 +66,7 @@ Ngôn ngữ tóm tắt: **Song ngữ Anh–Việt** (mặc định) · Tiếng V
 
 ### Nút tóm tắt nổi
 
-- Hiện trên mọi trang web (trừ trang hệ thống của Chrome, Chrome Web Store và PDF). Nút chỉ dựng giao diện, **không đọc nội dung trang cho tới khi bạn bấm** (riêng đoạn bạn bôi đen thì chỉ được đo độ dài ngay trên máy để quyết định hiện nút **Tóm tắt đoạn này**, không gửi đi đâu).
+- Hiện trên mọi trang web (trừ trang hệ thống của Chrome, Chrome Web Store và PDF). Nút chỉ dựng giao diện, **không đọc nội dung trang cho tới khi bạn bấm** (riêng đoạn bạn bôi đen thì chỉ được đo độ dài ngay trên máy để quyết định hiện nút **Tóm tắt đoạn này** / **Dịch đoạn này**, không gửi đi đâu).
 - Kết quả dùng chung bộ nhớ đệm với popup và Side Panel. Nút **Mở bảng đầy đủ** trong thẻ mở Side Panel (nếu Chrome không cho, nhấn `Alt+S` rồi bấm **Mở bảng đầy đủ** trong popup).
 - Tắt nút: tab **Cài đặt** → bỏ chọn **Hiện nút tóm tắt nổi trên trang** (áp dụng ngay, không cần tải lại trang).
 - Sau khi cập nhật/tải lại extension, cần tải lại các trang đang mở để nút hoạt động lại.
@@ -130,6 +131,10 @@ Extension **không có máy chủ riêng**, không có analytics, không thu th�
 - Tóm tắt đoạn bôi đen chỉ đọc vùng chọn ở trang chính (không đọc vùng chọn trong iframe hay trong ô nhập liệu).
 
 ## Thay đổi
+
+### v1.3.3
+- Bôi đen đoạn dài giờ hiện thêm nút **Dịch đoạn này** cạnh nút **Tóm tắt đoạn này**; bấm vào để xem bản dịch Anh ⇄ Việt trong popup (có nút Sao chép).
+- Popup dịch đoạn chọn hiện **ngay phía trên chỗ chuột vừa thả** (lật xuống dưới hoặc co lại khi thiếu chỗ), không còn bị đẩy ra ngoài màn hình với đoạn dài.
 
 ### v1.3.2
 - Thẻ **✉️ Viết phản hồi** **luôn hiện** trong tab Hỏi đáp (trước đây chỉ trên webmail nên ticket Freshdesk/Zendesk… không có). Trang giống thư/helpdesk chỉ quyết định thẻ xếp đầu hay cuối hàng.

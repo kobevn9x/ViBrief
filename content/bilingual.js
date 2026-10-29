@@ -503,6 +503,40 @@ h1 > .tldrvi-tr, h2 > .tldrvi-tr, h3 > .tldrvi-tr { font-size: 0.8em !important;
   }
 
   // ---------------- dịch đoạn đã chọn (popup nổi) ----------------
+  // Điểm để neo popup (toạ độ viewport): chỗ chuột vừa thả khi bôi đen (fab.js ghi vào __tldrviPointer,
+  // cùng isolated world) nếu nó nằm sát vùng chọn; không thì cuối vùng chọn; không có gì thì giữa màn hình.
+  function popupAnchor() {
+    const sel = getSelection();
+    const rects = sel && sel.rangeCount ? [...sel.getRangeAt(0).getClientRects()].filter((r) => r.width || r.height) : [];
+    const p = window.__tldrviPointer;
+    const near = (r) => p.x >= r.left - 40 && p.x <= r.right + 40 && p.y >= r.top - 40 && p.y <= r.bottom + 40;
+    if (p && rects.some(near)) return { x: p.x, y: p.y };
+    const last = rects[rects.length - 1];
+    if (last) return { x: Math.min(Math.max(0, last.right), window.innerWidth), y: Math.min(Math.max(0, last.top), window.innerHeight) };
+    return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+  }
+
+  // Đặt popup ngay phía trên điểm neo (đủ chỗ thì lên trên, không thì xuống dưới; thiếu cả hai thì co chiều cao).
+  // Neo bằng toạ độ trang nên popup cuộn theo nội dung; gọi lại khi chữ dịch về làm popup đổi chiều cao.
+  function placePopup(pop, anchor) {
+    const GAP = 12, EDGE = 8;
+    const ax = anchor.x - window.scrollX, ay = anchor.y - window.scrollY;
+    pop.style.maxHeight = "";
+    const w = pop.offsetWidth;
+    let h = pop.offsetHeight;
+    const above = ay - GAP - EDGE, below = window.innerHeight - ay - GAP - EDGE;
+    const up = h <= above || (h > below && above >= below);
+    const room = up ? above : below;
+    if (h > room) {
+      pop.style.maxHeight = Math.max(80, room) + "px";
+      h = pop.offsetHeight;
+    }
+    const top = up ? ay - GAP - h : ay + GAP;
+    const left = Math.min(Math.max(EDGE, ax - w / 2), Math.max(EDGE, window.innerWidth - w - EDGE));
+    pop.style.top = window.scrollY + Math.max(EDGE, top) + "px";
+    pop.style.left = window.scrollX + left + "px";
+  }
+
   async function showSelection(text) {
     text = (text || String(getSelection() || "")).trim().slice(0, MAX_LEN);
     if (!text) return;
@@ -511,18 +545,10 @@ h1 > .tldrvi-tr, h2 > .tldrvi-tr, h3 > .tldrvi-tr { font-size: 0.8em !important;
     const pop = document.createElement("div");
     pop.className = "tldrvi-pop";
     pop.innerHTML = `<div class="tldrvi-pop-head"><span>${target === "vi" ? "Anh → Việt" : "Việt → Anh"}</span><span class="tldrvi-pop-actions"><button type="button" data-a="copy">Sao chép</button><button type="button" data-a="close" aria-label="Đóng">✕</button></span></div><div class="tldrvi-pop-body">Đang dịch…</div>`;
-    const sel = getSelection();
-    let top = window.scrollY + 80, left = window.scrollX + 40;
-    if (sel && sel.rangeCount) {
-      const r = sel.getRangeAt(0).getBoundingClientRect();
-      if (r.width || r.height) {
-        top = window.scrollY + r.bottom + 8;
-        left = window.scrollX + Math.min(Math.max(8, r.left), window.innerWidth - 400);
-      }
-    }
-    pop.style.top = top + "px";
-    pop.style.left = left + "px";
+    const a = popupAnchor();
+    const anchor = { x: a.x + window.scrollX, y: a.y + window.scrollY };
     document.documentElement.appendChild(pop);
+    placePopup(pop, anchor);
     const body = pop.querySelector(".tldrvi-pop-body");
     pop.addEventListener("click", (e) => {
       const a = e.target.closest("button")?.dataset.a;
@@ -537,6 +563,7 @@ h1 > .tldrvi-tr, h2 > .tldrvi-tr, h3 > .tldrvi-tr { font-size: 0.8em !important;
     } catch (e) {
       body.textContent = "Không dịch được: " + e.message;
     }
+    if (pop.isConnected) placePopup(pop, anchor); // chữ dịch làm popup cao lên → giữ nó sát điểm neo
   }
 
   window.__tldrvi = {

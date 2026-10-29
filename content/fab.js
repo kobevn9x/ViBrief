@@ -8,6 +8,7 @@
   const MSG_RELOAD = "Extension vừa được cập nhật – hãy tải lại trang.";
   const MSG_PANEL_HINT = "Nhấn Alt+S rồi bấm “Mở bảng đầy đủ”.";
   const SEL_TITLE = "Tóm tắt đoạn đã bôi đen (Lan Brieft)";
+  const TR_TITLE = "Dịch đoạn đã bôi đen Anh ⇄ Việt (Lan Brieft)";
   // đoạn bôi đen dài hơn ngần này ký tự mới tóm tắt riêng (bản sao của MIN_SELECTION trong lib/extract.js)
   const MIN_SELECTION = 100;
   // icons/icon48.png dạng data URI (giữ đồng bộ nếu đổi icon)
@@ -93,9 +94,9 @@ button { font: inherit; color: inherit; }
 /* thẻ mở từ nút "Tóm tắt đoạn này": đặt cạnh vùng bôi đen (top/left/bottom do JS tính) */
 .card.at-sel { right: auto; transform: none; max-width: calc(100vw - 16px); }
 
-/* nút nhỏ hiện cạnh đoạn vừa bôi đen */
+/* thanh nút nhỏ hiện cạnh đoạn vừa bôi đen: "Tóm tắt đoạn này" + "Dịch đoạn này" */
+.sel-bar { position: fixed; z-index: 2147483647; display: flex; gap: 6px; }
 .sel-btn {
-  position: fixed; z-index: 2147483647;
   display: flex; align-items: center; gap: 6px; margin: 0;
   padding: 4px 11px 4px 6px; border-radius: 999px;
   background: var(--surface); color: var(--text);
@@ -105,6 +106,7 @@ button { font: inherit; color: inherit; }
 .sel-btn:hover { background: var(--accent-soft); }
 .sel-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .sel-btn img { width: 18px; height: 18px; display: block; pointer-events: none; }
+.sel-btn .ico { width: 18px; text-align: center; font-size: 15px; line-height: 20px; pointer-events: none; }
 
 .card-head {
   display: flex; align-items: center; gap: 8px; flex: none;
@@ -209,11 +211,16 @@ mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3
       body,
       el("footer", { class: "card-foot" }, [openBtn, hint])
     ]);
-    const selBtn = el("button", { class: "sel-btn", type: "button", title: SEL_TITLE, "aria-label": SEL_TITLE, hidden: true }, [
+    const selBtn = el("button", { class: "sel-btn", type: "button", title: SEL_TITLE, "aria-label": SEL_TITLE }, [
       el("img", { src: iconURL, alt: "" }),
       "Tóm tắt đoạn này"
     ]);
-    const root = el("div", { class: "root", "data-theme": "default", hidden: true }, [fab, card, selBtn]);
+    const trBtn = el("button", { class: "sel-btn tr", type: "button", title: TR_TITLE, "aria-label": TR_TITLE }, [
+      el("span", { class: "ico", text: "🌐" }),
+      "Dịch đoạn này"
+    ]);
+    const selBar = el("div", { class: "sel-bar", hidden: true }, [selBtn, trBtn]);
+    const root = el("div", { class: "root", "data-theme": "default", hidden: true }, [fab, card, selBar]);
 
     shadow.append(el("style", { text: CSS }), root);
     document.documentElement.append(host);
@@ -334,17 +341,32 @@ mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3
     // việc đó không được phép kích hoạt tóm tắt (tốn quota/tiền API key của người dùng).
     fab.addEventListener("click", (e) => {
       if (!e.isTrusted) return;
-      selBtn.hidden = true;
+      selBar.hidden = true;
       if (!card.hidden) closeCard();
       else openCard(selectionInfo() ? "selection" : "page");
     });
     selBtn.addEventListener("click", (e) => {
       if (!e.isTrusted) return;
-      selBtn.hidden = true;
+      selBar.hidden = true;
       openCard("selection", selAnchor);
     });
-    // bấm nút không được làm mất vùng bôi đen (background đọc lại đoạn chọn khi tóm tắt)
-    for (const b of [fab, selBtn]) b.addEventListener("mousedown", (e) => e.preventDefault());
+    // Dịch: background nạp bilingual.js rồi hiện popup dịch cạnh vùng chọn (chữ do bilingual.js tự đọc từ vùng chọn)
+    trBtn.addEventListener("click", async (e) => {
+      if (!e.isTrusted) return;
+      selBar.hidden = true;
+      try {
+        if (!alive()) throw new Error("Extension context invalidated.");
+        const res = await chrome.runtime.sendMessage({ type: "translate-selection" });
+        if (res && !res.ok) throw new Error(res.error);
+      } catch (err) {
+        if (!card.hidden) closeCard();
+        card.hidden = false;
+        placeCard(selAnchor);
+        showStatus(isInvalidated(err) || !alive() ? MSG_RELOAD : err?.message || String(err), "error");
+      }
+    });
+    // bấm nút không được làm mất vùng bôi đen (background đọc lại đoạn chọn khi tóm tắt/dịch)
+    for (const b of [fab, selBtn, trBtn]) b.addEventListener("mousedown", (e) => e.preventDefault());
 
     // ------------------------------------------------------------ nút cạnh đoạn bôi đen
     // Chỉ xem vùng chọn để quyết định hiện nút; chữ của trang không được gửi từ đây.
@@ -364,35 +386,38 @@ mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3
     function updateSelBtn() {
       const info = root.hidden ? null : selectionInfo();
       if (!info) {
-        selBtn.hidden = true;
+        selBar.hidden = true;
         return;
       }
       selAnchor = info.last;
-      selBtn.hidden = false;
-      const w = selBtn.offsetWidth, h = selBtn.offsetHeight;
+      selBar.hidden = false;
+      const w = selBar.offsetWidth, h = selBar.offsetHeight;
       let top = info.last.bottom + 6;
       if (top + h > innerHeight - 8) top = Math.max(8, info.last.top - h - 6);
-      selBtn.style.left = Math.min(Math.max(8, info.last.right - w), innerWidth - w - 8) + "px";
-      selBtn.style.top = top + "px";
+      selBar.style.left = Math.min(Math.max(8, info.last.right - w), innerWidth - w - 8) + "px";
+      selBar.style.top = top + "px";
     }
 
     document.addEventListener("mouseup", (e) => {
-      if (e.isTrusted && e.button === 0 && !e.composedPath().includes(host)) setTimeout(updateSelBtn, 0);
+      if (!e.isTrusted || e.composedPath().includes(host)) return;
+      // chỗ chuột vừa dừng: bilingual.js (cùng isolated world) neo popup dịch đoạn chọn vào đây
+      window.__tldrviPointer = { x: e.clientX, y: e.clientY };
+      if (e.button === 0) setTimeout(updateSelBtn, 0);
     }, true);
     document.addEventListener("keyup", (e) => {
       if (e.isTrusted && (e.shiftKey || e.key === "Shift" || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a"))) setTimeout(updateSelBtn, 0);
     }, true);
     document.addEventListener("selectionchange", () => {
-      if (!selBtn.hidden && !selectionInfo()) selBtn.hidden = true;
+      if (!selBar.hidden && !selectionInfo()) selBar.hidden = true;
     });
-    window.addEventListener("scroll", () => { selBtn.hidden = true; }, { capture: true, passive: true });
+    window.addEventListener("scroll", () => { selBar.hidden = true; }, { capture: true, passive: true });
     closeBtn.addEventListener("click", () => {
       closeCard();
       fab.focus();
     });
     document.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
-      selBtn.hidden = true;
+      selBar.hidden = true;
       if (!card.hidden) closeCard();
     }, true);
 
