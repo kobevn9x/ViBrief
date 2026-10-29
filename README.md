@@ -1,9 +1,10 @@
 # Lan Brieft – Tóm tắt & Dịch song ngữ Anh ⇄ Việt
 
-Extension Chrome (Manifest V3) lấy cảm hứng từ *TLDR Summarizer AI*, gồm 2 chức năng:
+Extension Chrome (Manifest V3) lấy cảm hứng từ *TLDR Summarizer AI*, gồm 3 chức năng:
 
 1. **Tóm tắt trang đang xem**: 1 câu TL;DR + 3/5/8 ý chính (từ khoá được tô sáng) + đoạn tóm tắt. Mặc định tóm tắt **song ngữ Anh–Việt** (mỗi câu tiếng Việt kèm bản tiếng Anh ngay bên dưới); có thể chọn chỉ Tiếng Việt / English / theo ngôn ngữ trang và độ dài. Xem nhanh trong popup khi bấm icon, hoặc trong Side Panel đầy đủ.
 2. **Dịch song ngữ Anh ⇄ Việt ngay trên trang**: bản dịch chèn ngay dưới từng đoạn (kiểu Immersive Translate), tự nhận diện chiều dịch theo từng đoạn, chỉ dịch phần sắp cuộn tới để tiết kiệm. Kèm dịch đoạn đã bôi đen (chuột phải) và ô dịch nhanh trong panel.
+3. **Hỏi đáp về trang**: chat với AI về nội dung trang sau khi tóm tắt — hỏi thêm chi tiết, hoặc nháp **email phản hồi** khi trang là một email (tab **Hỏi đáp** trong Side Panel).
 
 ## Cài đặt (chế độ developer)
 
@@ -24,9 +25,10 @@ Dịch bằng Google không cần key – dùng được ngay sau khi cài.
 |---|---|
 | Tóm tắt ngay trên trang | Bấm **nút nổi** ở giữa cạnh phải màn hình → thẻ tóm tắt song ngữ hiện ngay cạnh nút (✕ hoặc `Esc` để đóng) |
 | Tóm tắt nhanh | Bấm icon trên thanh công cụ hoặc `Alt+S` → popup hiện tóm tắt ngay cho trang đang xem |
-| Mở bảng đầy đủ | Trong popup bấm **Mở bảng đầy đủ** → mở Side Panel (Tóm tắt · Dịch · Cài đặt) |
+| Mở bảng đầy đủ | Trong popup bấm **Mở bảng đầy đủ** → mở Side Panel (Tóm tắt · Dịch · Hỏi đáp · Cài đặt) |
 | Tóm tắt trong Side Panel | Chuột phải → *Tóm tắt trang này*, hoặc **Tóm tắt trang này** trong panel |
 | Tóm tắt đoạn bôi đen | Kéo chuột bôi đen đoạn > 100 ký tự → bấm nút **Tóm tắt đoạn này** hiện ngay cạnh vùng chọn (hoặc chuột phải → *Tóm tắt đoạn đã chọn*) |
+| Hỏi thêm về trang | Tab **Hỏi đáp** → nhập câu hỏi (`Enter` để gửi); hoặc bấm **Hỏi thêm** dưới bản tóm tắt. Trang thư (Gmail, Outlook…) có gợi ý ✉️ **Viết email phản hồi** |
 | Bật/tắt song ngữ | Tab **Dịch** → công tắc, hoặc `Alt+T`, hoặc chuột phải → *Dịch song ngữ trang này*; tắt bằng nút **Tắt** ở badge góc phải dưới |
 | Dịch đoạn chọn | Bôi đen → chuột phải → *Dịch đoạn đã chọn* (popup nổi, có nút Sao chép) |
 | Dịch nhanh | Tab **Dịch** → dán văn bản → **Dịch** (`Ctrl+Enter`) |
@@ -48,6 +50,16 @@ Phím tắt đang dùng hiện ở cuối popup và trong tab **Cài đặt** �
 - Không hiện nút khi bôi đen trong ô nhập liệu. Nút ẩn đi khi bỏ chọn, cuộn trang hoặc nhấn `Esc`; tắt cùng tuỳ chọn **Hiện nút tóm tắt nổi trên trang**.
 
 Ngôn ngữ tóm tắt: **Song ngữ Anh–Việt** (mặc định) · Tiếng Việt · English · Theo ngôn ngữ trang. Nút **Sao chép** chép cả phần tiếng Việt và phần tiếng Anh.
+
+### Hỏi đáp về trang
+
+- Tab **Hỏi đáp** trong Side Panel: hỏi thêm bất cứ điều gì về trang đang xem — AI đọc trực tiếp nội dung trang (tối đa 20.000 ký tự đầu) cùng bản tóm tắt bạn vừa đọc, nên trả lời được cả chi tiết không có trong bản tóm tắt. Nút **Hỏi thêm** dưới kết quả tóm tắt nhảy thẳng sang tab này.
+- Bấm một **thẻ gợi ý** trong tab Hỏi đáp là **gửi ngay** câu đó (không cần bấm Gửi); nội dung bạn đang gõ dở trong ô nhập được giữ nguyên. Riêng thẻ **✉️ Viết email phản hồi** chỉ điền sẵn câu vào ô nhập (con trỏ ở cuối) để bạn gõ thêm **phong cách trả lời** — vd. *lịch sự, ngắn gọn*, *thân mật*, *từ chối khéo* — rồi tự bấm Gửi.
+- Trên trang thư (Gmail, Outlook…), tab gợi ý luôn có thẻ **✉️ Viết email phản hồi**: AI nháp thư phản hồi cho **email đang mở trên màn hình** (nếu là chuỗi thư thì trả lời thư mới nhất), viết **theo ngôn ngữ của email** đó (trừ khi bạn yêu cầu ngôn ngữ khác), có dòng Tiêu đề và dùng `[chỗ trống]` cho ngày, giá, cam kết hay tên người gửi không có trong email — AI không tự bịa thông tin.
+- Nếu không đọc được nội dung trang, tab báo lỗi và **không gửi** câu hỏi (không để AI trả lời như thể chưa thấy trang); bấm ⟳ để đọc lại.
+- Trả lời hiện dần từng chữ; `Shift+Enter` xuống dòng; nút **Dừng** cắt giữa lúc trả lời nhưng giữ lại phần đã viết; mỗi câu trả lời có nút **Sao chép**.
+- Hội thoại nhiều lượt giữ nguyên ngữ cảnh, lưu tạm **theo từng trang** trong bộ nhớ phiên (mất khi đóng trình duyệt) — đóng và mở lại Side Panel trên cùng trang vẫn tiếp tục được. Nút ⟳ đọc lại nội dung trang, nút 🗑 xoá hội thoại ngay.
+- AI trả lời theo ngôn ngữ của câu hỏi bạn gõ.
 
 ### Nút tóm tắt nổi
 
@@ -89,11 +101,12 @@ Extension **không có máy chủ riêng**, không có analytics, không thu th�
 | Tóm tắt ở chế độ **Song ngữ** (mặc định) | Thêm: bản tóm tắt tiếng Việt (không phải cả trang) để dịch sang tiếng Anh | `translate.googleapis.com` (Google Translate). Nếu Google lỗi thì gửi cho nhà cung cấp AI |
 | Tóm tắt mà AI trả lời sai ngôn ngữ (vd. trang tiếng Trung → tóm tắt tiếng Trung) | Thêm: bản tóm tắt đó để dịch sang ngôn ngữ đã chọn | Chế độ **Song ngữ**: Google Translate, lỗi thì nhà cung cấp AI. Chế độ *Tiếng Việt* / *English*: chỉ nhà cung cấp AI |
 | Bật dịch song ngữ trang, dịch đoạn chọn, dịch nhanh | Chữ của các đoạn cần dịch | Bộ máy dịch đang chọn: Google (mặc định) hoặc nhà cung cấp AI |
+| Hỏi đáp về trang (tab **Hỏi đáp**) | Câu hỏi của bạn + tiêu đề, URL, chữ của trang (tối đa 20.000 ký tự) + bản tóm tắt đang xem (nếu có) + các lượt hội thoại trước | Nhà cung cấp AI bạn chọn |
 | Kiểm tra kết nối | Một câu kiểm tra ngắn | Nhà cung cấp AI |
 | Tải danh sách model miễn phí / để trống ô Model | Không gửi dữ liệu của bạn (chỉ đọc danh sách model công khai) | `openrouter.ai` |
 
 - **Chỉ mở trang thì không gửi gì.** Nút nổi chỉ dựng giao diện. Nội dung trang chỉ được đọc khi chính bạn bấm, và script của trang web không thể "bấm hộ" (extension bỏ qua mọi cú bấm giả).
-- **Kết quả tóm tắt** chỉ lưu tạm trong bộ nhớ phiên (`chrome.storage.session`) và mất khi đóng trình duyệt.
+- **Kết quả tóm tắt** và **hội thoại Hỏi đáp** (kèm chữ của trang đã đọc cho tab đó) chỉ lưu tạm trong bộ nhớ phiên (`chrome.storage.session`) và mất khi đóng trình duyệt; xoá hội thoại bằng nút 🗑 trong tab Hỏi đáp.
 - **Model miễn phí:** dữ liệu gửi đi tuân theo chính sách của từng nhà cung cấp. Một số model miễn phí trên OpenRouter có thể được nhà cung cấp lưu lại hoặc dùng để huấn luyện; hãy xem phần cài đặt quyền riêng tư trong tài khoản OpenRouter.
 - **Nội dung nhạy cảm** (email, tài liệu nội bộ), nên chọn một trong các cách sau:
   - dùng key trả phí của nhà cung cấp có cam kết không lưu dữ liệu;
@@ -116,6 +129,18 @@ Extension **không có máy chủ riêng**, không có analytics, không thu th�
 
 ## Thay đổi
 
+### v1.3.1
+- Tab **Hỏi đáp**: bấm thẻ gợi ý là **gửi ngay**, không cần bấm Gửi; chữ đang gõ dở trong ô nhập được giữ nguyên. Thẻ **✉️ Viết email phản hồi** là ngoại lệ: chỉ điền sẵn câu vào ô nhập để bạn thêm phong cách trả lời (lịch sự, ngắn gọn, từ chối khéo…) rồi tự bấm Gửi; AI làm theo phong cách bạn yêu cầu.
+- Không còn gửi trùng khi bấm đúp thẻ hoặc gửi liên tiếp lúc đang đọc trang; nút **Dừng** dùng được ngay cả khi đang đọc trang.
+- Đọc trang thất bại (hoặc gần như không có chữ) thì báo lỗi và không gửi câu hỏi, thay vì để AI trả lời như thể chưa thấy trang.
+- **Viết email phản hồi**: trả lời email đang mở trên màn hình (chuỗi thư thì trả lời thư mới nhất), viết theo ngôn ngữ của email, có dòng Tiêu đề, dùng `[chỗ trống]` cho thông tin không có trong email và không bịa. Nội dung trang được coi là dữ liệu không đáng tin, không thể ra lệnh cho AI.
+### v1.3.0
+- **Tab Hỏi đáp mới** trong Side Panel: trò chuyện với AI về trang đang xem sau khi tóm tắt — AI đọc trực tiếp nội dung trang (tối đa 20.000 ký tự) cùng bản tóm tắt đang mở, nên trả lời được cả chi tiết không nằm trong bản tóm tắt. Nút **Hỏi thêm** dưới kết quả tóm tắt nhảy thẳng sang tab này.
+- Trả lời hiện dần từng chữ, `Shift+Enter` xuống dòng, nút **Dừng** giữa lúc stream (giữ phần đã viết) và **Sao chép** từng câu trả lời.
+- Trên webmail (Gmail, Outlook…), tab gợi ý kèm thẻ **✉️ Viết email phản hồi** — AI nháp thư phản hồi cho email đang mở, theo ngôn ngữ của email.
+- Bấm thẻ gợi ý là gửi ngay (trừ thẻ ✉️ Viết email phản hồi: điền sẵn câu để bạn thêm phong cách trả lời rồi tự gửi); bấm đúp hay gửi liên tiếp khi đang đọc trang không còn gửi trùng; đọc trang lỗi thì báo lỗi thay vì để AI trả lời mà không có nội dung trang.
+- Hội thoại lưu tạm theo từng trang trong bộ nhớ phiên (mất khi đóng trình duyệt); nút ⟳ đọc lại nội dung trang, nút 🗑 xoá hội thoại.
+
 ### v1.2.1
 - Đổi tên hiển thị thành **Lan Brieft** (trước đây là ViBrief). Repo, link tải và tên file zip giữ nguyên; cài đặt và API key đã lưu không bị ảnh hưởng.
 - **Tóm tắt đoạn bôi đen**: bôi đen đoạn > 100 ký tự → nút **Tóm tắt đoạn này** hiện cạnh vùng chọn, thẻ kết quả hiện ngay tại đó và chỉ đoạn đó được gửi cho AI.
@@ -126,6 +151,10 @@ Extension **không có máy chủ riêng**, không có analytics, không thu th�
 - `Alt+S` mở popup tóm tắt nhanh (trước đây bấm không thấy gì vì Chrome chặn mở Side Panel). Phím tắt đang dùng hiện ở cuối popup và tab **Cài đặt → Phím tắt**, báo *Chưa gán* nếu bị trùng, có nút **Đổi phím tắt**.
 - Dịch song ngữ ổn định hơn: dịch được link dạng khối, thẻ tự định nghĩa, chữ nằm cạnh danh sách con, nội dung trong Shadow DOM, nội dung ẩn lúc bật (tab, mục thu gọn) và nội dung trang tự cập nhật; tự thử lại khi Google giới hạn lượt gọi.
 - Chữ ngắn trong menu, thanh điều hướng, tab, ô bảng được dịch cùng dòng (vd. *Home · Trang chủ*) để không vỡ bố cục.
+
+## Ý tưởng mở rộng
+
+Tóm tắt video YouTube qua transcript · tải PDF bằng pdf.js · bảng thuật ngữ riêng (MES, SQL…) đưa vào prompt dịch AI.
 
 ---
 

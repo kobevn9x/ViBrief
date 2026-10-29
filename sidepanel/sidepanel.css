@@ -143,3 +143,52 @@ kbd { font: 11px ui-monospace, monospace; border: 1px solid var(--border); borde
 .credit { margin: 8px 0 0; padding-top: 10px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); text-align: center; }
 .credit a { color: inherit; font-weight: 600; text-decoration: none; }
 .credit a:hover { color: var(--accent); text-decoration: underline; }
+
+/* ---------------------------------------------------------------- hỏi đáp */
+.chat-ctx {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 8px 8px 8px 12px;
+}
+.chat-ctx-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.chat-ctx-title { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chat-ctx-note { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.icon-btn {
+  border: 0; background: none; color: var(--muted); font: inherit; font-size: 15px; line-height: 1;
+  padding: 6px; border-radius: 7px; cursor: pointer; flex: none;
+}
+.icon-btn:hover { background: var(--accent-soft); color: var(--text); }
+
+.chat-log { display: flex; flex-direction: column; gap: 10px; }
+.chat-msg {
+  max-width: 92%; border-radius: 12px; padding: 8px 12px;
+  background: var(--surface); border: 1px solid var(--border); overflow-wrap: anywhere;
+}
+.chat-msg.user { align-self: flex-end; background: var(--accent-soft); border-color: transparent; white-space: pre-wrap; }
+.chat-msg .md > * { margin: 0 0 6px; }
+.chat-msg .md > :last-child { margin-bottom: 0; }
+.chat-msg .md ul, .chat-msg .md ol { padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+.chat-msg .md code { font: .92em ui-monospace, monospace; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 0 3px; }
+.chat-msg.streaming .md > :last-child::after {
+  content: ""; display: inline-block; width: .45em; height: 1em; margin-left: 2px; vertical-align: -.15em;
+  background: var(--accent); border-radius: 1px; animation: caret 1s steps(1) infinite;
+}
+.msg-copy {
+  border: 0; background: none; color: var(--muted); font: inherit; font-size: 11px;
+  padding: 4px 0 0; cursor: pointer;
+}
+.msg-copy:hover { color: var(--accent); }
+
+.chat-empty { border: 1px dashed var(--border); border-radius: 12px; padding: 14px; font-size: 13px; color: var(--muted); }
+.chat-empty p { margin: 0 0 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  font: inherit; font-size: 13px; border-radius: 999px; padding: 5px 12px; cursor: pointer;
+}
+.chip:hover { background: var(--accent-soft); }
+
+.chat-input { position: sticky; bottom: 0; background: var(--bg); display: flex; gap: 8px; align-items: flex-end; padding: 10px 0 2px; }
+.chat-input textarea { flex: 1; min-height: 44px; max-height: 132px; resize: none; }
+.chat-input .btn { flex: none; min-width: 60px; }
+.chat-input .btn.stop { background: var(--danger); color: #fff; }
+@media (prefers-reduced-motion: reduce) { .chat-msg.streaming .md *::after { animation: none !important; } }

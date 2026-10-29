@@ -12,6 +12,7 @@
     <nav class="tabs" role="tablist">
       <button role="tab" data-tab="summary" aria-selected="true">Tóm tắt</button>
       <button role="tab" data-tab="translate">Dịch</button>
+      <button role="tab" data-tab="chat">Hỏi đáp</button>
       <button role="tab" data-tab="settings" aria-label="Cài đặt">Cài đặt</button>
     </nav>
   </header>
@@ -47,6 +48,7 @@
       <div class="row end">
         <button class="btn ghost" id="btnCopySummary">Sao chép</button>
         <button class="btn ghost" id="btnResummarize">Tóm tắt lại</button>
+        <button class="btn ghost" id="btnAskMore">Hỏi thêm</button>
       </div>
     </article>
   </section>
@@ -85,6 +87,24 @@
     </div>
     <div class="qt-out" id="qtOutput" hidden></div>
     <div class="row end"><button class="btn ghost" id="btnCopyQt" hidden>Sao chép</button></div>
+  </section>
+
+  <!-- ============ HỎI ĐÁP ============ -->
+  <section class="panel" id="tab-chat" hidden>
+    <div class="chat-ctx">
+      <div class="chat-ctx-txt">
+        <span class="chat-ctx-title" id="chatCtxTitle">—</span>
+        <span class="chat-ctx-note" id="chatCtxNote"></span>
+      </div>
+      <button class="icon-btn" id="btnChatRefresh" title="Đọc lại nội dung trang" aria-label="Đọc lại nội dung trang">⟳</button>
+      <button class="icon-btn" id="btnChatClear" title="Xoá hội thoại" aria-label="Xoá hội thoại">🗑</button>
+    </div>
+    <div class="chat-log" id="chatLog"></div>
+    <div id="chatStatus" class="status" hidden></div>
+    <div class="chat-input">
+      <textarea id="chatInput" rows="2" placeholder="Nhập câu hỏi… (Enter để gửi, Shift+Enter xuống dòng)"></textarea>
+      <button class="btn primary" id="btnChatSend">Gửi</button>
+    </div>
   </section>
 
   <!-- ============ CÀI ĐẶT ============ -->
