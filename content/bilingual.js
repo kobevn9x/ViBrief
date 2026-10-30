@@ -25,11 +25,17 @@
 
   // Kiểu của bản dịch: chèn vào document và vào từng shadow root (insertCSS không áp vào shadow DOM).
   const TR_CSS = `
+:root {
+  --tldrvi-accent: #2f9e7a;
+}
+:root[data-theme="pink"], [data-tldrvi-theme="pink"] {
+  --tldrvi-accent: #9e2053;
+}
 .tldrvi-tr {
   display: block !important;
   margin: 0.35em 0 0.2em !important;
   padding: 0 0 0 0.6em !important;
-  border-left: 2px solid #2f9e7a !important;
+  border-left: 2px solid var(--tldrvi-accent, #2f9e7a) !important;
   color: inherit !important;
   opacity: 0.82;
   font-size: 0.95em !important;
@@ -71,7 +77,8 @@ h1 > .tldrvi-tr, h2 > .tldrvi-tr, h3 > .tldrvi-tr { font-size: 0.8em !important;
     ownRemoved: new WeakSet(), // span do chính mình gỡ (để MutationObserver bỏ qua)
     added: new Set(),
     changed: new Set(),
-    moTimer: null
+    moTimer: null,
+    theme: "default"
   };
 
   const isVietnamese = (t) => {
@@ -439,6 +446,7 @@ h1 > .tldrvi-tr, h2 > .tldrvi-tr, h3 > .tldrvi-tr { font-size: 0.8em !important;
     if (state.badge?.isConnected) return state.badge;
     const b = document.createElement("div");
     b.className = "tldrvi-badge";
+    if (state.theme) b.dataset.theme = state.theme;
     b.innerHTML = `<span class="tldrvi-badge-dot"></span><span class="tldrvi-badge-text"></span><button type="button" title="Tắt dịch song ngữ">Tắt</button>`;
     b.querySelector("button").addEventListener("click", () => toggle(false));
     document.documentElement.appendChild(b);
@@ -544,6 +552,7 @@ h1 > .tldrvi-tr, h2 > .tldrvi-tr, h3 > .tldrvi-tr { font-size: 0.8em !important;
     const target = isVietnamese(text) ? "en" : "vi";
     const pop = document.createElement("div");
     pop.className = "tldrvi-pop";
+    if (state.theme) pop.dataset.theme = state.theme;
     pop.innerHTML = `<div class="tldrvi-pop-head"><span>${target === "vi" ? "Anh → Việt" : "Việt → Anh"}</span><span class="tldrvi-pop-actions"><button type="button" data-a="copy">Sao chép</button><button type="button" data-a="close" aria-label="Đóng">✕</button></span></div><div class="tldrvi-pop-body">Đang dịch…</div>`;
     const a = popupAnchor();
     const anchor = { x: a.x + window.scrollX, y: a.y + window.scrollY };
@@ -565,6 +574,34 @@ h1 > .tldrvi-tr, h2 > .tldrvi-tr, h3 > .tldrvi-tr { font-size: 0.8em !important;
     }
     if (pop.isConnected) placePopup(pop, anchor); // chữ dịch làm popup cao lên → giữ nó sát điểm neo
   }
+
+  function getActiveTheme() {
+    const fromDoc = document.documentElement.dataset.tldrviTheme || document.documentElement.dataset.theme;
+    if (fromDoc) return fromDoc;
+    const fabHost = document.getElementById("tldrvi-fab-host");
+    const fromFab = fabHost?.shadowRoot?.querySelector(".root")?.dataset?.theme;
+    if (fromFab) return fromFab;
+    return "default";
+  }
+
+  function applyTheme(theme) {
+    state.theme = theme === "pink" ? "pink" : "default";
+    document.documentElement.dataset.tldrviTheme = state.theme;
+    for (const pop of document.querySelectorAll(".tldrvi-pop")) pop.dataset.theme = state.theme;
+    if (state.badge) state.badge.dataset.theme = state.theme;
+  }
+
+  applyTheme(getActiveTheme());
+  try {
+    chrome.storage?.local?.get("settings").then(({ settings }) => {
+      if (settings?.theme) applyTheme(settings.theme);
+    }).catch(() => {});
+    chrome.storage?.onChanged?.addListener((changes, area) => {
+      if (area === "local" && changes.settings?.newValue?.theme) {
+        applyTheme(changes.settings.newValue.theme);
+      }
+    });
+  } catch {}
 
   window.__tldrvi = {
     toggle,

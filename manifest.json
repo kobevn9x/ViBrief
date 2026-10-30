@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Lan Brieft – Tóm tắt & Dịch song ngữ Anh–Việt",
   "short_name": "Lan Brieft",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "Tóm tắt trang web đang xem, dịch song ngữ Anh ⇄ Việt ngay trên trang và hỏi đáp với AI về nội dung trang.",
   "icons": {
     "16": "icons/icon16.png",

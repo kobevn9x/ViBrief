@@ -47,17 +47,17 @@
     --danger: #ff806e;
   }
 }
-/* "Trắng hồng dịu" – luôn sáng, kể cả khi hệ thống ở chế độ tối */
+/* "Trắng hồng dịu" - luôn sáng, kể cả khi hệ thống ở chế độ tối */
 .root[data-theme="pink"] {
-  --bg: #fff7fa;
+  --bg: #f8ebf1;
   --surface: #ffffff;
-  --border: #f5d3e0;
-  --text: #3b2a31;
-  --muted: #775966;
-  --accent: #b23c6b;
+  --border: #e2b8cb;
+  --text: #26161f;
+  --muted: #5e3f4e;
+  --accent: #9e2053;
   --accent-ink: #ffffff;
-  --accent-soft: #fde7f0;
-  --mark: #ffd6e5;
+  --accent-soft: #fce4ee;
+  --mark: #fde68a;
   --danger: #c2412f;
   color-scheme: light;
 }
@@ -94,19 +94,118 @@ button { font: inherit; color: inherit; }
 /* thẻ mở từ nút "Tóm tắt đoạn này": đặt cạnh vùng bôi đen (top/left/bottom do JS tính) */
 .card.at-sel { right: auto; transform: none; max-width: calc(100vw - 16px); }
 
-/* thanh nút nhỏ hiện cạnh đoạn vừa bôi đen: "Tóm tắt đoạn này" + "Dịch đoạn này" */
-.sel-bar { position: fixed; z-index: 2147483647; display: flex; gap: 6px; }
-.sel-btn {
-  display: flex; align-items: center; gap: 6px; margin: 0;
-  padding: 4px 11px 4px 6px; border-radius: 999px;
-  background: var(--surface); color: var(--text);
-  border: 1px solid var(--border); box-shadow: 0 4px 14px rgba(0, 0, 0, .18);
-  font-size: 13px; font-weight: 600; line-height: 20px; white-space: nowrap; cursor: pointer;
+/* thanh nút nhỏ hiện cạnh đoạn vừa bôi đen: Apple Liquid Glass + hiệu ứng giọt nước GSAP spring */
+.sel-bar {
+  position: fixed;
+  z-index: 2147483647;
+  display: flex;
+  gap: 8px;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.16));
+  pointer-events: auto;
 }
-.sel-btn:hover { background: var(--accent-soft); }
-.sel-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sel-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  padding: 6px 13px 6px 8px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+  white-space: nowrap;
+  cursor: pointer;
+  color: var(--text);
+  
+  /* Apple Liquid Glass surface */
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(20px) saturate(190%) contrast(105%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%) contrast(105%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), inset 0 1px 1.5px rgba(255, 255, 255, 0.9), inset 0 -1px 1px rgba(0, 0, 0, 0.04);
+  
+  /* Water drop entrance: GSAP back.out(1.7) spring curve */
+  transform-origin: center bottom;
+  animation: waterDrop 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s, border-color 0.18s, box-shadow 0.2s;
+}
+.sel-btn.tr {
+  animation-delay: 45ms;
+}
+.sel-btn:hover {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), inset 0 1px 2px #ffffff;
+}
+.sel-btn:active {
+  transform: scale(0.94) translateY(1px);
+  transition: transform 0.08s ease-out;
+  background: var(--accent-soft);
+}
+.sel-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 .sel-btn img { width: 18px; height: 18px; display: block; pointer-events: none; }
 .sel-btn .ico { width: 18px; text-align: center; font-size: 15px; line-height: 20px; pointer-events: none; }
+
+@media (prefers-color-scheme: dark) {
+  .sel-btn {
+    background: rgba(24, 32, 29, 0.78);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 1.5px rgba(255, 255, 255, 0.22);
+  }
+  .sel-btn:hover {
+    background: rgba(34, 46, 41, 0.9);
+    border-color: rgba(255, 255, 255, 0.28);
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  }
+}
+
+.root[data-theme="pink"] .sel-btn {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(226, 184, 203, 0.75);
+  box-shadow: 0 4px 18px rgba(158, 32, 83, 0.14), inset 0 1px 1.5px #ffffff;
+}
+.root[data-theme="pink"] .sel-btn:hover {
+  background: #ffffff;
+  border-color: var(--accent);
+  box-shadow: 0 8px 24px rgba(158, 32, 83, 0.2), inset 0 1px 2px #ffffff;
+}
+
+@keyframes waterDrop {
+  0% {
+    opacity: 0;
+    transform: scale(0.65) translateY(10px);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1.07) translateY(-2px);
+  }
+  85% {
+    transform: scale(0.97) translateY(1px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sel-btn {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .sel-btn {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: var(--surface) !important;
+  }
+}
 
 .card-head {
   display: flex; align-items: center; gap: 8px; flex: none;
@@ -343,7 +442,10 @@ mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3
       if (!e.isTrusted) return;
       selBar.hidden = true;
       if (!card.hidden) closeCard();
-      else openCard(selectionInfo() ? "selection" : "page");
+      else {
+        const info = selectionInfo();
+        openCard(info && info.text.length > MIN_SELECTION ? "selection" : "page");
+      }
     });
     selBtn.addEventListener("click", (e) => {
       if (!e.isTrusted) return;
@@ -377,10 +479,14 @@ mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3
       const at = node?.nodeType === 1 ? node : node?.parentElement;
       if (!at || at === host || host.contains(at) || at.isContentEditable) return null;
       if (document.activeElement?.matches?.("input, textarea, select")) return null;
-      if (String(sel).replace(/\s+/g, " ").trim().length <= MIN_SELECTION) return null;
+      const text = String(sel).replace(/\s+/g, " ").trim();
+      if (!text.length) return null;
       const range = sel.getRangeAt(0);
       const rects = [...range.getClientRects()].filter((r) => r.width || r.height);
-      return { last: rects.length ? rects[rects.length - 1] : range.getBoundingClientRect() };
+      return {
+        text,
+        last: rects.length ? rects[rects.length - 1] : range.getBoundingClientRect()
+      };
     }
 
     function updateSelBtn() {
@@ -390,6 +496,9 @@ mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3
         return;
       }
       selAnchor = info.last;
+      const isLong = info.text.length > MIN_SELECTION;
+      selBtn.hidden = !isLong;
+      trBtn.hidden = false;
       selBar.hidden = false;
       const w = selBar.offsetWidth, h = selBar.offsetHeight;
       let top = info.last.bottom + 6;
@@ -444,7 +553,9 @@ mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3
 
     // ------------------------------------------------------------ giao diện + bật/tắt nút
     function applySettings(settings) {
-      root.dataset.theme = settings?.theme === "pink" ? "pink" : "default";
+      const theme = settings?.theme === "pink" ? "pink" : "default";
+      root.dataset.theme = theme;
+      document.documentElement.dataset.tldrviTheme = theme;
       root.hidden = settings?.showFab === false;
       if (root.hidden) closeCard();
     }
@@ -458,6 +569,6 @@ mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3
       if (area === "local" && changes.settings) applySettings(changes.settings.newValue);
     });
   } catch {
-    // attachShadow/chrome.* không dùng được trên trang này – bỏ qua, không hiện nút
+    // attachShadow/chrome.* không dùng được trên trang này - bỏ qua, không hiện nút
   }
 })();

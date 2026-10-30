@@ -13,15 +13,57 @@ applyTheme();
 let currentTab = null;
 let summarySeq = 0; // tăng mỗi lần đổi trang / tóm tắt lại → bỏ qua kết quả cũ về muộn
 
-// ---------------------------------------------------------------- tabs UI
+// ---------------------------------------------------------------- tabs UI + Liquid Glass Gliding
+const tabsNav = document.querySelector(".tabs");
+const tabIndicator = document.querySelector(".tab-indicator");
+
+function moveIndicator(btn) {
+  if (!btn || !tabIndicator || !tabsNav) return;
+  const navRect = tabsNav.getBoundingClientRect();
+  const btnRect = btn.getBoundingClientRect();
+  const left = btnRect.left - navRect.left;
+  const width = btnRect.width;
+
+  tabIndicator.style.transform = `translateX(${Math.round(left)}px)`;
+  tabIndicator.style.width = `${Math.round(width)}px`;
+  tabIndicator.style.opacity = "1";
+}
+
+function updateActiveIndicator() {
+  const activeBtn = document.querySelector('.tabs button[aria-selected="true"]');
+  if (activeBtn) moveIndicator(activeBtn);
+}
+
 document.querySelectorAll(".tabs button").forEach((btn) => {
-  btn.addEventListener("click", () => showTab(btn.dataset.tab));
+  btn.addEventListener("click", () => {
+    showTab(btn.dataset.tab);
+    moveIndicator(btn);
+  });
+  btn.addEventListener("mouseenter", () => {
+    moveIndicator(btn);
+  });
 });
+
+tabsNav?.addEventListener("mouseleave", () => {
+  updateActiveIndicator();
+});
+
 function showTab(name) {
   document.querySelectorAll(".tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === name)));
   document.querySelectorAll(".panel").forEach((p) => (p.hidden = p.id !== "tab-" + name));
+  updateActiveIndicator();
   if (name === "translate") refreshBilingualState();
 }
+
+requestAnimationFrame(() => updateActiveIndicator());
+// đổi cỡ panel: nhảy thẳng tới vị trí mới (trượt từ chỗ cũ sẽ làm trang tràn ngang trong lúc chạy)
+window.addEventListener("resize", () => {
+  if (!tabIndicator) return;
+  tabIndicator.style.transition = "none";
+  updateActiveIndicator();
+  void tabIndicator.offsetWidth;
+  tabIndicator.style.transition = "";
+});
 
 // ---------------------------------------------------------------- helpers
 function applyTheme() {
@@ -599,6 +641,90 @@ $("btnAskMore").addEventListener("click", () => {
 // ---------------------------------------------------------------- settings
 const draft = { apiKeys: { ...settings.apiKeys }, models: { ...settings.models } };
 
+const PRESET_MODELS = {
+  openrouter: [
+    { id: "", label: "Tự động (Free)", tag: "Khuyên dùng" },
+    { id: "google/gemini-2.0-flash-lite-preview:free", label: "Gemini Flash Lite", tag: "Free" },
+    { id: "meta-llama/llama-3.3-70b-instruct:free", label: "Llama 3.3 70B", tag: "Free" }
+  ],
+  gemini: [
+    { id: "gemini-2.5-flash", label: "Gemini 2.5 Flash", tag: "Nhanh" },
+    { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro", tag: "Mạnh" },
+    { id: "gemini-2.0-flash", label: "Gemini 2.0 Flash", tag: "Ổn định" }
+  ],
+  openai: [
+    { id: "gpt-6-luna", label: "GPT-6 Luna", tag: "Mặc định" },
+    { id: "gpt-4o-mini", label: "GPT-4o Mini", tag: "Nhẹ" },
+    { id: "gpt-4o", label: "GPT-4o", tag: "Cao cấp" }
+  ],
+  anthropic: [
+    { id: "claude-haiku-5-5", label: "Claude Haiku 5.5", tag: "Mặc định" },
+    { id: "claude-3-5-sonnet-latest", label: "Sonnet 3.5", tag: "Chuẩn" },
+    { id: "claude-3-5-haiku-latest", label: "Haiku 3.5", tag: "Nhanh" }
+  ],
+  compat: [
+    { id: "llama3.1", label: "Llama 3.1", tag: "Mặc định" },
+    { id: "qwen2.5", label: "Qwen 2.5", tag: "Việt tốt" },
+    { id: "deepseek-r1", label: "DeepSeek R1", tag: "Lý luận" }
+  ]
+};
+
+function syncProviderCards(activeVal) {
+  const cards = document.querySelectorAll(".provider-card");
+  cards.forEach((c) => {
+    const isMatch = c.dataset.provider === activeVal;
+    c.classList.toggle("active", isMatch);
+    c.setAttribute("aria-checked", String(isMatch));
+  });
+}
+
+function renderModelChips() {
+  const p = $("provider").value;
+  const curVal = $("model").value.trim();
+  const chipsContainer = $("modelChips");
+  if (!chipsContainer) return;
+
+  const presets = [...(PRESET_MODELS[p] || [])];
+
+  if (p === "openrouter") {
+    const datalistOpts = [...$("modelList").querySelectorAll("option")].map((o) => o.value);
+    for (const id of datalistOpts.slice(0, 6)) {
+      if (!presets.some((x) => x.id === id)) {
+        const shortName = id.replace(/:free$/, "").split("/").pop();
+        presets.push({ id, label: shortName, tag: "Free" });
+      }
+    }
+  }
+
+  chipsContainer.replaceChildren(
+    ...presets.map((m) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      const isMatch = m.id === curVal;
+      btn.className = "model-chip" + (isMatch ? " active" : "");
+      btn.dataset.id = m.id;
+
+      const lbl = document.createElement("span");
+      lbl.textContent = m.label;
+      btn.append(lbl);
+
+      if (m.tag) {
+        const tag = document.createElement("span");
+        tag.className = "chip-tag";
+        tag.textContent = m.tag;
+        btn.append(tag);
+      }
+
+      btn.addEventListener("click", () => {
+        $("model").value = m.id;
+        draft.models[p] = m.id;
+        renderModelChips();
+      });
+      return btn;
+    })
+  );
+}
+
 function loadProviderFields() {
   const p = $("provider").value;
   $("apiKey").value = draft.apiKeys[p] || "";
@@ -610,6 +736,8 @@ function loadProviderFields() {
   $("model").placeholder = p === "openrouter" ? "Để trống = tự chọn model miễn phí" : "";
   $("baseUrlField").hidden = p !== "compat";
   $("btnFreeModels").hidden = p !== "openrouter";
+  syncProviderCards(p);
+  renderModelChips();
 }
 function stashProviderFields(p) {
   draft.apiKeys[p] = $("apiKey").value.trim();
@@ -622,6 +750,23 @@ $("autoSummarize").checked = settings.autoSummarize;
 $("theme").value = settings.theme === "pink" ? "pink" : "default";
 $("showFab").checked = settings.showFab !== false;
 loadProviderFields();
+
+document.querySelectorAll(".provider-card").forEach((card) => {
+  card.addEventListener("click", () => {
+    const p = card.dataset.provider;
+    if ($("provider").value !== p) {
+      stashProviderFields(lastProvider);
+      $("provider").value = p;
+      lastProvider = p;
+      loadProviderFields();
+    }
+  });
+});
+
+$("model").addEventListener("input", () => {
+  draft.models[$("provider").value] = $("model").value.trim();
+  renderModelChips();
+});
 
 // giao diện + nút nổi: lưu ngay khi đổi (nút Lưu không ghi đè các trường này)
 $("theme").addEventListener("change", async () => {
@@ -647,7 +792,8 @@ $("btnFreeModels").addEventListener("click", async () => {
     const ids = await listOpenRouterFreeModels();
     const list = $("modelList");
     list.replaceChildren(...ids.map((id) => Object.assign(document.createElement("option"), { value: id })));
-    setStatus($("settingsStatus"), `Đã tải ${ids.length} model miễn phí – chọn trong ô Model.`);
+    renderModelChips();
+    setStatus($("settingsStatus"), `Đã tải ${ids.length} model miễn phí - chọn trong ô Model.`);
   } catch (e) {
     setStatus($("settingsStatus"), e.message || String(e), "error");
   } finally {
