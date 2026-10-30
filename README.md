@@ -1,10 +1,60 @@
 # Lan Brieft – Tóm tắt & Dịch song ngữ Anh ⇄ Việt
 
+**Tiếng Việt** · [English](README.en.md)
+
 Extension Chrome (Manifest V3) lấy cảm hứng từ *TLDR Summarizer AI*, gồm 3 chức năng:
 
 1. **Tóm tắt trang đang xem**: 1 câu TL;DR + 3/5/8 ý chính (từ khoá được tô sáng) + đoạn tóm tắt. Mặc định tóm tắt **song ngữ Anh–Việt** (mỗi câu tiếng Việt kèm bản tiếng Anh ngay bên dưới); có thể chọn chỉ Tiếng Việt / English / theo ngôn ngữ trang và độ dài. Xem nhanh trong popup khi bấm icon, hoặc trong Side Panel đầy đủ.
 2. **Dịch song ngữ Anh ⇄ Việt ngay trên trang**: bản dịch chèn ngay dưới từng đoạn (kiểu Immersive Translate), tự nhận diện chiều dịch theo từng đoạn, chỉ dịch phần sắp cuộn tới để tiết kiệm. Kèm dịch đoạn đã bôi đen (chuột phải) và ô dịch nhanh trong panel.
 3. **Hỏi đáp về trang**: chat với AI về nội dung trang sau khi tóm tắt — hỏi thêm chi tiết, hoặc nháp **email phản hồi** khi trang là một email (tab **Hỏi đáp** trong Side Panel).
+
+## Hình ảnh
+
+### Tóm tắt ngay trên trang
+
+Bấm **nút nổi** ở cạnh phải màn hình: thẻ tóm tắt song ngữ hiện ngay cạnh nút, mỗi câu tiếng Việt kèm bản tiếng Anh, từ khoá được tô sáng.
+
+![Thẻ tóm tắt song ngữ hiện cạnh nút nổi trên trang](docs/images/fab-card.png)
+
+### Popup tóm tắt nhanh và Side Panel
+
+Bấm icon trên thanh công cụ (hoặc `Alt+S`) để xem tóm tắt trong popup; **Mở bảng đầy đủ** mở Side Panel với 4 tab Tóm tắt · Dịch · Hỏi đáp · Cài đặt.
+
+<p>
+  <img src="docs/images/popup.png" width="300" alt="Popup tóm tắt nhanh">
+  &nbsp;
+  <img src="docs/images/sidepanel-summary.png" width="300" alt="Tab Tóm tắt trong Side Panel">
+</p>
+
+### Dịch song ngữ ngay trên trang
+
+Bản dịch tiếng Việt chèn ngay dưới từng đoạn; chữ ngắn trong menu được dịch cùng dòng để không vỡ bố cục. Badge góc phải dưới cho biết tiến độ và có nút **Tắt**.
+
+![Trang tiếng Anh với bản dịch tiếng Việt dưới từng đoạn](docs/images/bilingual.png)
+
+### Tóm tắt hoặc dịch đoạn bôi đen
+
+Bôi đen đoạn dài hơn 100 ký tự: hai nút **Tóm tắt đoạn này** và **Dịch đoạn này** hiện ngay dưới vùng chọn. Bấm dịch thì popup bản dịch hiện phía trên chỗ chuột vừa thả, có nút **Sao chép**.
+
+![Hai nút Tóm tắt đoạn này và Dịch đoạn này dưới đoạn bôi đen](docs/images/selection-bar.png)
+
+![Popup bản dịch đoạn bôi đen](docs/images/selection-translate.png)
+
+### Hỏi đáp về trang
+
+Tab **Hỏi đáp**: hỏi thêm về nội dung trang hoặc nháp email phản hồi. AI đọc chính nội dung trang nên trả lời được cả chi tiết không có trong bản tóm tắt.
+
+<img src="docs/images/chat.png" width="300" alt="Tab Hỏi đáp trong Side Panel">
+
+### Cài đặt và giao diện
+
+Chọn nhà cung cấp AI, nhập API key, chọn model. Có hai giao diện: *Mặc định (xanh lá)* và *Trắng hồng dịu*.
+
+<p>
+  <img src="docs/images/settings.png" width="300" alt="Tab Cài đặt">
+  &nbsp;
+  <img src="docs/images/theme-pink.png" width="300" alt="Giao diện Trắng hồng dịu">
+</p>
 
 ## Cài đặt (chế độ developer)
 
@@ -73,7 +123,7 @@ Ngôn ngữ tóm tắt: **Song ngữ Anh–Việt** (mặc định) · Tiếng V
 
 ### Giao diện
 
-Tab **Cài đặt** → **Giao diện**: *Mặc định (xanh lá)* hoặc *Trắng hồng dịu*. Áp dụng cho popup, Side Panel, nút nổi và thẻ tóm tắt trên trang. Theme hồng luôn ở tông sáng (kể cả khi máy đang ở chế độ tối) và đạt độ tương phản WCAG AA.
+Tab **Cài đặt** → **Giao diện**: *Mặc định (xanh lá)* hoặc *Trắng hồng dịu*. Áp dụng cho popup, Side Panel, nút nổi, thẻ tóm tắt, popup dịch đoạn chọn và badge song ngữ trên trang. Theme hồng luôn ở tông sáng (kể cả khi máy đang ở chế độ tối) và đạt độ tương phản WCAG AA.
 
 ## Nhà cung cấp AI hỗ trợ
 
@@ -90,7 +140,7 @@ Tên model sửa tự do trong Cài đặt. Bộ máy dịch có thể chuyển 
 ### OpenRouter – model miễn phí
 
 - Để trống ô **Model** → extension tự lấy danh sách model miễn phí (các model có đuôi `:free`) từ OpenRouter và dùng model đầu tiên.
-- Muốn chọn model cụ thể: bấm **Tải danh sách model miễn phí** trong tab Cài đặt → chọn một model trong ô Model → **Lưu**.
+- Muốn chọn model cụ thể: bấm **Tải danh sách model miễn phí** trong tab Cài đặt → chọn một model trong ô Model hoặc bấm một thẻ gợi ý model → **Lưu**.
 - Model miễn phí **vẫn cần API key** (miễn phí) tạo tại <https://openrouter.ai/keys>.
 - Model miễn phí bị giới hạn số lượt gọi (theo phút và theo ngày, do OpenRouter quy định). Nếu gặp lỗi giới hạn, đợi một lúc, đổi sang model miễn phí khác, hoặc dùng provider khác.
 
@@ -132,6 +182,12 @@ Extension **không có máy chủ riêng**, không có analytics, không thu th�
 
 ## Thay đổi
 
+### v1.3.4
+- **Giao diện mới** cho popup, Side Panel và nút nổi: thẻ dạng kính mờ, thanh tab có vệt trượt theo tab đang chọn, thêm icon cho tab và nút.
+- Tab **Cài đặt**: chọn nhà cung cấp AI bằng các thẻ (OpenRouter, Gemini, Claude, OpenAI, Local AI) và chọn model nhanh bằng **thẻ gợi ý model** (gồm cả các model miễn phí vừa tải về).
+- Popup dịch đoạn chọn và badge dịch song ngữ đổi theo giao diện đang dùng (kể cả *Trắng hồng dịu*); hai nút cạnh đoạn bôi đen và popup dịch có hiệu ứng hiện ra nhẹ.
+- **Viết phản hồi**: khi tin cần trả lời viết bằng ngoại ngữ, bản nháp luôn viết đúng ngôn ngữ đó (kể cả khi bạn hỏi bằng tiếng Việt), trừ khi bạn ghi rõ "bằng tiếng Việt".
+
 ### v1.3.3
 - Bôi đen đoạn dài giờ hiện thêm nút **Dịch đoạn này** cạnh nút **Tóm tắt đoạn này**; bấm vào để xem bản dịch Anh ⇄ Việt trong popup (có nút Sao chép).
 - Popup dịch đoạn chọn hiện **ngay phía trên chỗ chuột vừa thả** (lật xuống dưới hoặc co lại khi thiếu chỗ), không còn bị đẩy ra ngoài màn hình với đoạn dài.
@@ -165,10 +221,6 @@ Extension **không có máy chủ riêng**, không có analytics, không thu th�
 - `Alt+S` mở popup tóm tắt nhanh (trước đây bấm không thấy gì vì Chrome chặn mở Side Panel). Phím tắt đang dùng hiện ở cuối popup và tab **Cài đặt → Phím tắt**, báo *Chưa gán* nếu bị trùng, có nút **Đổi phím tắt**.
 - Dịch song ngữ ổn định hơn: dịch được link dạng khối, thẻ tự định nghĩa, chữ nằm cạnh danh sách con, nội dung trong Shadow DOM, nội dung ẩn lúc bật (tab, mục thu gọn) và nội dung trang tự cập nhật; tự thử lại khi Google giới hạn lượt gọi.
 - Chữ ngắn trong menu, thanh điều hướng, tab, ô bảng được dịch cùng dòng (vd. *Home · Trang chủ*) để không vỡ bố cục.
-
-## Ý tưởng mở rộng
-
-Tóm tắt video YouTube qua transcript · tải PDF bằng pdf.js · bảng thuật ngữ riêng (MES, SQL…) đưa vào prompt dịch AI.
 
 ---
 
