@@ -21,6 +21,9 @@
   const MAX_LEN = 4500;
   const MAX_RESETS = 3; // trang render lại liên tục (SPA) → thôi chèn lại sau 3 lần
   const RETRY_MS = 4000;
+  const BATCH = 20; // đoạn mỗi lần gửi về background (Google: 1 request cho cả lô)
+  const PARALLEL = 3; // số lô gửi cùng lúc
+  const FLUSH_MS = 50; // gom các đoạn vừa hiện ra trước khi gửi
   const MO_OPTS = { childList: true, subtree: true, characterData: true };
 
   // Kiểu của bản dịch: chèn vào document và vào từng shadow root (insertCSS không áp vào shadow DOM).
@@ -246,7 +249,7 @@ h1 > .tldrvi-tr, h2 > .tldrvi-tr, h3 > .tldrvi-tr { font-size: 0.8em !important;
         state.total++;
       }
     }
-    if (state.queue.size && !state.timer) state.timer = setTimeout(flush, 120);
+    if (state.queue.size && !state.timer) state.timer = setTimeout(flush, FLUSH_MS);
     updateBadge();
   }
 
@@ -294,17 +297,27 @@ h1 > .tldrvi-tr, h2 > .tldrvi-tr, h3 > .tldrvi-tr { font-size: 0.8em !important;
       state.done--;
       setState(u, "pending");
       state.queue.add(u);
-      if (!state.timer) state.timer = setTimeout(flush, 120);
+      if (!state.timer) state.timer = setTimeout(flush, FLUSH_MS);
     }, RETRY_MS);
+  }
+
+  // Thứ tự gửi đi: đoạn đang nhìn thấy (từ trên xuống), rồi phía dưới (sắp cuộn tới), cuối cùng phía trên.
+  function byPosition(units) {
+    const vh = innerHeight;
+    const rank = new Map(units.map((u) => {
+      const r = u.host.getBoundingClientRect();
+      return [u, r.bottom >= 0 && r.top < vh ? r.top : r.top >= vh ? 1e6 + r.top : 2e6 - r.top];
+    }));
+    return units.sort((a, b) => rank.get(a) - rank.get(b));
   }
 
   async function flush() {
     state.timer = null;
-    const items = [...state.queue];
+    const items = byPosition([...state.queue]);
     state.queue.clear();
     if (!items.length || !state.active) return;
 
-    // nhóm theo ngôn ngữ đích
+    // nhóm theo ngôn ngữ đích (giữ thứ tự ưu tiên trong từng nhóm)
     const groups = { vi: [], en: [] };
     for (const u of items) {
       if (!unitAlive(u)) { state.total--; dropUnit(u); continue; }
@@ -323,39 +336,48 @@ h1 > .tldrvi-tr, h2 > .tldrvi-tr, h3 > .tldrvi-tr { font-size: 0.8em !important;
     }
     updateBadge();
 
+    // lô 20 đoạn, tối đa 3 lô cùng lúc, lô nào về thì chèn ngay; lô chứa đoạn đang nhìn thấy đi trước
+    const parts = [];
     for (const target of ["vi", "en"]) {
       const g = groups[target];
-      for (let i = 0; i < g.length; i += 40) {
-        const part = g.slice(i, i + 40);
-        let res;
-        state.inflight++;
-        updateBadge();
-        try {
-          res = await chrome.runtime.sendMessage({ type: "translate", target, texts: part.map((x) => x.text) });
-        } catch (e) {
-          res = { ok: false, error: e.message };
-        } finally {
-          state.inflight--;
-        }
-        if (!state.active) return;
-        let failed = 0;
-        part.forEach((x, j) => {
-          const tr = res?.ok ? res.translations[j] : null;
-          if (tr && tr.trim() && tr.trim() !== x.text) {
-            state.cache.set(x.key, tr);
-            insertTranslation(x.u, tr, target);
-          } else {
-            setState(x.u, tr ? "same" : "error");
-            if (!tr) { state.failed++; failed++; scheduleRetry(x.u); }
-          }
-          state.done++;
-        });
-        if (!res?.ok) setBadgeError(res?.error || "Lỗi dịch");
-        else if (failed) setBadgeError(`${failed} đoạn chưa dịch được, sẽ thử lại`);
-        else clearBadgeError();
-        updateBadge();
-      }
+      for (let i = 0; i < g.length; i += BATCH) parts.push({ target, part: g.slice(i, i + BATCH), first: items.indexOf(g[i].u) });
     }
+    parts.sort((a, b) => a.first - b.first);
+    let next = 0;
+    const worker = async () => {
+      while (next < parts.length && state.active) await sendPart(parts[next++]);
+    };
+    await Promise.all(Array.from({ length: Math.min(PARALLEL, parts.length) }, worker));
+  }
+
+  async function sendPart({ target, part }) {
+    let res;
+    state.inflight++;
+    updateBadge();
+    try {
+      res = await chrome.runtime.sendMessage({ type: "translate", target, texts: part.map((x) => x.text) });
+    } catch (e) {
+      res = { ok: false, error: e.message };
+    } finally {
+      state.inflight--;
+    }
+    if (!state.active) return;
+    let failed = 0;
+    part.forEach((x, j) => {
+      const tr = res?.ok ? res.translations[j] : null;
+      if (tr && tr.trim() && tr.trim() !== x.text) {
+        state.cache.set(x.key, tr);
+        insertTranslation(x.u, tr, target);
+      } else {
+        setState(x.u, tr ? "same" : "error");
+        if (!tr) { state.failed++; failed++; scheduleRetry(x.u); }
+      }
+      state.done++;
+    });
+    if (!res?.ok) setBadgeError(res?.error || "Lỗi dịch");
+    else if (failed) setBadgeError(`${failed} đoạn chưa dịch được, sẽ thử lại`);
+    else clearBadgeError();
+    updateBadge();
   }
 
   // ---------------- trang tự thay đổi (tải thêm, SPA render lại) ----------------
@@ -545,11 +567,15 @@ h1 > .tldrvi-tr, h2 > .tldrvi-tr, h3 > .tldrvi-tr { font-size: 0.8em !important;
     pop.style.left = window.scrollX + left + "px";
   }
 
-  async function showSelection(text) {
+  /**
+   * Popup dịch đoạn chọn. Background gửi kèm `text` + `target` (đã tính theo chiều dịch trong cài đặt và đã bắt đầu dịch);
+   * gọi không tham số thì tự đọc vùng chọn và tính theo chiều dịch đang dùng.
+   */
+  async function showSelection(text, target) {
     text = (text || String(getSelection() || "")).trim().slice(0, MAX_LEN);
     if (!text) return;
     document.querySelector(".tldrvi-pop")?.remove();
-    const target = isVietnamese(text) ? "en" : "vi";
+    if (target !== "vi" && target !== "en") target = targetFor(text);
     const pop = document.createElement("div");
     pop.className = "tldrvi-pop";
     if (state.theme) pop.dataset.theme = state.theme;
@@ -566,13 +592,43 @@ h1 > .tldrvi-tr, h2 > .tldrvi-tr, h3 > .tldrvi-tr { font-size: 0.8em !important;
     });
     const onDocDown = (e) => { if (!pop.contains(e.target)) { pop.remove(); document.removeEventListener("mousedown", onDocDown, true); } };
     setTimeout(() => document.addEventListener("mousedown", onDocDown, true), 0);
-    try {
-      const res = await chrome.runtime.sendMessage({ type: "translate", target, texts: [text] });
-      body.textContent = res?.ok && res.translations[0] ? res.translations[0] : "Không dịch được: " + (res?.error || "lỗi không rõ");
-    } catch (e) {
-      body.textContent = "Không dịch được: " + e.message;
-    }
-    if (pop.isConnected) placePopup(pop, anchor); // chữ dịch làm popup cao lên → giữ nó sát điểm neo
+    // nhận bản dịch qua port: AI về dần từng chữ, Google về một lần; vẽ lại tối đa 1 lần mỗi khung hình
+    let latest = null, frame = 0;
+    const render = () => {
+      frame = 0;
+      if (!pop.isConnected || latest == null) return;
+      body.textContent = latest;
+      placePopup(pop, anchor); // chữ dịch làm popup cao lên → giữ nó sát điểm neo
+    };
+    await new Promise((resolve) => {
+      let port;
+      const finish = (msg) => {
+        body.classList.remove("streaming");
+        latest = msg;
+        if (frame) cancelAnimationFrame(frame);
+        render();
+        try { port?.disconnect(); } catch { /* đã đóng */ }
+        resolve();
+      };
+      try {
+        port = chrome.runtime.connect({ name: "translate-selection" });
+      } catch (e) {
+        return finish("Không dịch được: " + e.message);
+      }
+      port.onMessage.addListener((m) => {
+        if (m?.type === "partial") {
+          body.classList.add("streaming");
+          latest = m.text;
+          if (!frame) frame = requestAnimationFrame(render);
+        } else if (m?.type === "done") finish(m.text || "Không dịch được: kết quả trống");
+        else if (m?.type === "error") finish("Không dịch được: " + (m.error || "lỗi không rõ"));
+      });
+      port.onDisconnect.addListener(() => {
+        if (body.textContent === "Đang dịch…" || body.classList.contains("streaming")) finish("Không dịch được: mất kết nối với extension");
+      });
+      pop.addEventListener("click", (e) => { if (e.target.closest("[data-a='close']")) try { port.disconnect(); } catch {} });
+      port.postMessage({ text, target });
+    });
   }
 
   function getActiveTheme() {

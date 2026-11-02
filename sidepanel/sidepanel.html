@@ -219,6 +219,33 @@
       <button class="btn ghost" id="btnTest">Kiểm tra kết nối</button>
     </div>
     <div id="settingsStatus" class="status" hidden></div>
+
+    <h3>Cá nhân hoá AI</h3>
+    <label class="field">Mức suy luận
+      <select id="reasoningEffort">
+        <option value="none">Tắt – nhanh nhất</option>
+        <option value="low">Thấp</option>
+        <option value="medium">Vừa (mặc định)</option>
+        <option value="high">Cao – kỹ nhất, chậm nhất</option>
+      </select>
+    </label>
+    <p class="hint">Áp dụng cho tóm tắt và Hỏi đáp: mức càng cao AI viết càng tự nhiên nhưng trả lời chậm hơn và tốn token hơn. Dịch luôn chạy ở mức Tắt cho nhanh.</p>
+    <label class="field"><span class="field-head">Hướng dẫn chung cho AI <small class="counter" id="customPromptCount"></small></span>
+      <textarea id="customPrompt" rows="3" maxlength="2000" placeholder="VD: Viết tự nhiên như người Việt, tránh dịch sát từng chữ. Câu ngắn, đi thẳng vào ý chính."></textarea>
+    </label>
+    <label class="field"><span class="field-head">Quy tắc viết email <small class="counter" id="emailRulesCount"></small></span>
+      <textarea id="emailRules" rows="3" maxlength="2000" placeholder="VD: Xưng &quot;em&quot;, gọi khách là &quot;anh/chị&quot;. Mở đầu bằng lời cảm ơn. Ký tên: Tuấn – Team MES."></textarea>
+    </label>
+    <label class="field"><span class="field-head">Bộ nhớ – thông tin về bạn <small class="counter" id="memoryCount"></small></span>
+      <textarea id="memory" rows="3" maxlength="2000" placeholder="VD: Tên: Hoàng Tuấn. Chức vụ: kỹ sư MES. Công ty: … Điện thoại: …"></textarea>
+    </label>
+    <div class="field">
+      <span class="field-head">Mẫu email đã lưu <small class="counter" id="examplesCount"></small></span>
+      <ul class="examples" id="emailExamples"></ul>
+      <p class="hint" id="examplesEmpty">Chưa có mẫu nào. Trong tab Hỏi đáp, bấm “Lưu làm mẫu” dưới câu trả lời bạn ưng ý để AI học theo văn phong đó.</p>
+    </div>
+    <p class="hint">Hướng dẫn chung dùng cho cả tóm tắt và Hỏi đáp; quy tắc, bộ nhớ và mẫu email dùng trong Hỏi đáp. Tất cả chỉ lưu trên máy bạn, và được gửi kèm tới nhà cung cấp AI mỗi lần dùng. Tự lưu khi bạn gõ.</p>
+
     <h3>Phím tắt</h3>
     <ul class="shortcuts" id="shortcutList"></ul>
     <button class="btn ghost" id="btnShortcuts">Đổi phím tắt</button>

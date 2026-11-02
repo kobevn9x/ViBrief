@@ -1,5 +1,5 @@
 import { getSettings, hasLLMKey } from "./lib/settings.js";
-import { translateBatch } from "./lib/translate.js";
+import { translateBatch, translateStream, targetFor } from "./lib/translate.js";
 import { canAccess, extractPage, getSelectionText, isLongSelection, MIN_SELECTION } from "./lib/extract.js";
 import { summarizePage } from "./lib/summarize.js";
 import { renderSummaryHTML, getCachedSummary, setCachedSummary, clearCachedSummary, cacheKey } from "./lib/summary-view.js";
@@ -18,8 +18,71 @@ chrome.runtime.onInstalled.addListener(() => {
 
 /** Nạp content script dịch song ngữ vào tab (an toàn nếu nạp lại). */
 async function ensureBilingual(tabId) {
+  // đã có bản còn sống (cùng lần nạp extension) → bỏ qua: đỡ một bước mỗi lần bấm và không chèn CSS trùng
+  const [{ result: alive } = {}] = await chrome.scripting.executeScript({
+    target: { tabId },
+    func: () => { try { return Boolean(window.__tldrvi?.alive?.()); } catch { return false; } }
+  });
+  if (alive) return;
   await chrome.scripting.insertCSS({ target: { tabId }, files: ["content/bilingual.css"] });
   await chrome.scripting.executeScript({ target: { tabId }, files: ["content/bilingual.js"] });
+}
+
+// ---------------------------------------------------------------- dịch đoạn bôi đen
+// Một tác vụ cho mỗi (bộ máy, ngôn ngữ đích, đoạn): rê chuột lên nút "Dịch đoạn này" bắt đầu dịch sẵn,
+// bấm nút / popup dịch dùng lại đúng tác vụ đó (cùng kiểu dùng chung yêu cầu đang chạy như summarizeTab).
+const SEL_MAX = 4500; // = MAX_LEN trong content/bilingual.js
+const SEL_TTL = 2 * 60 * 1000;
+const selJobs = new Map(); // key → {partial, result, error, listeners, at}
+
+const normalizeSel = (text) => String(text || "").trim().slice(0, SEL_MAX);
+
+function startSelJob(settings, text, target) {
+  const engine = settings.translateEngine === "llm" ? "llm" : "google";
+  const key = `${engine}|${target}|${text}`;
+  const now = Date.now();
+  for (const [k, j] of selJobs) if (now - j.at > SEL_TTL || (j.error && k !== key)) selJobs.delete(k);
+  const old = selJobs.get(key);
+  if (old && !old.error) return old;
+  const job = { partial: "", result: null, error: null, listeners: new Set(), at: now };
+  selJobs.set(key, job);
+  while (selJobs.size > 20) selJobs.delete(selJobs.keys().next().value);
+  const emit = (msg) => job.listeners.forEach((fn) => fn(msg));
+  (async () => {
+    if (engine === "llm") {
+      return translateStream(settings, text, target, {
+        onDelta: (d) => { job.partial += d; emit({ type: "partial", text: job.partial }); }
+      });
+    }
+    const [tr] = await translateBatch(settings, [text], target);
+    if (!tr) throw new Error("Google Translate chưa dịch được, thử lại sau ít giây.");
+    return tr;
+  })().then(
+    (tr) => { job.result = tr; emit({ type: "done", text: tr }); },
+    (e) => { job.error = e?.message || String(e); emit({ type: "error", error: job.error }); }
+  );
+  return job;
+}
+
+/** Bắt đầu (hoặc dùng lại) bản dịch đoạn chọn theo bộ máy + chiều dịch trong cài đặt. */
+async function prepareSelection(rawText) {
+  const text = normalizeSel(rawText);
+  if (!text) return null;
+  const s = await getSettings();
+  const target = targetFor(text, s.translateDirection);
+  startSelJob(s, text, target);
+  return { text, target };
+}
+
+/** Hiện popup dịch cạnh đoạn chọn; bản dịch đã chạy từ trước (prepareSelection) nên chỉ còn chờ phần còn lại. */
+async function showSelectionPopup(tabId, rawText) {
+  const sel = await prepareSelection(rawText);
+  await ensureBilingual(tabId);
+  await chrome.scripting.executeScript({
+    target: { tabId },
+    func: (text, target) => window.__tldrvi.showSelection(text, target),
+    args: [sel?.text || "", sel?.target || null]
+  });
 }
 
 /** Bật/tắt (hoặc ép bật/tắt) dịch song ngữ. Trả về trạng thái mới. */
@@ -49,14 +112,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     if (info.menuItemId === "tldrvi-page") await toggleBilingual(tab.id, true);
     if (info.menuItemId === "tldrvi-summarize") await openPanelAndSummarize(tab);
     if (info.menuItemId === "tldrvi-summarize-selection") await openPanelAndSummarize(tab, { selection: true });
-    if (info.menuItemId === "tldrvi-selection") {
-      await ensureBilingual(tab.id);
-      await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        func: (text) => window.__tldrvi.showSelection(text),
-        args: [info.selectionText || ""]
-      });
-    }
+    if (info.menuItemId === "tldrvi-selection") await showSelectionPopup(tab.id, info.selectionText);
   } catch (e) {
     console.warn("Lan Brieft:", e);
   }
@@ -166,6 +222,33 @@ async function targetTab(sender, tabId) {
 
 const SCOPES = new Set(["auto", "selection", "page"]);
 
+// Popup dịch đoạn chọn (content/bilingual.js) nhận bản dịch qua port: chữ AI về dần, Google về một lần.
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name !== "translate-selection") return;
+  let open = true;
+  const post = (msg) => {
+    if (!open) return;
+    try { port.postMessage(msg); } catch { open = false; }
+  };
+  let job = null;
+  port.onDisconnect.addListener(() => { open = false; job?.listeners.delete(post); });
+  port.onMessage.addListener(async (msg) => {
+    try {
+      const text = normalizeSel(msg?.text);
+      if (!text) throw new Error("Chưa có đoạn nào được chọn.");
+      const s = await getSettings();
+      const target = msg?.target === "vi" || msg?.target === "en" ? msg.target : targetFor(text, s.translateDirection);
+      job = startSelJob(s, text, target);
+      if (job.result != null) return post({ type: "done", text: job.result });
+      if (job.error) return post({ type: "error", error: job.error });
+      if (job.partial) post({ type: "partial", text: job.partial });
+      job.listeners.add(post);
+    } catch (e) {
+      post({ type: "error", error: e?.message || String(e) });
+    }
+  });
+});
+
 // Kênh "summarize": client gửi {tabId?, force?, scope?}; background gửi lại
 // {type:"partial", result, html} nhiều lần rồi {type:"done", result, html, cached} hoặc {type:"error", error}.
 chrome.runtime.onConnect.addListener((port) => {
@@ -219,12 +302,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     })().then(sendResponse, (e) => sendResponse({ ok: false, error: e?.message || String(e) }));
     return true;
   }
+  if (msg?.type === "prefetch-selection") {
+    // rê chuột lên nút "Dịch đoạn này": dịch sẵn để bấm là có ngay (chỉ từ content script của tab)
+    if (sender.tab?.id) prepareSelection(msg.text).catch(() => {});
+    return;
+  }
   if (msg?.type === "translate-selection") {
     // từ nút "Dịch đoạn này" của nút nổi: chỉ dịch được vùng chọn của chính tab gửi
     (async () => {
       if (!sender.tab?.id) throw new Error("Không thể dịch trang này.");
-      await ensureBilingual(sender.tab.id);
-      await chrome.scripting.executeScript({ target: { tabId: sender.tab.id }, func: () => window.__tldrvi.showSelection("") });
+      await showSelectionPopup(sender.tab.id, msg.text);
       return { ok: true };
     })().then(sendResponse, (e) => sendResponse({ ok: false, error: e?.message || String(e) }));
     return true;

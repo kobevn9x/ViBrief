@@ -96,6 +96,7 @@ Phím tắt đang dùng hiện ở cuối popup và trong tab **Cài đặt** �
 ### Tóm tắt đoạn bôi đen
 
 - Bôi đen một đoạn **dài hơn 100 ký tự** → hai nút nhỏ **Tóm tắt đoạn này** và **Dịch đoạn này** hiện ngay dưới vùng chọn; bấm tóm tắt thì thẻ kết quả hiện cạnh đoạn đó và **chỉ đoạn đó** được gửi cho AI, bấm dịch thì popup bản dịch hiện ngay dưới đoạn.
+- **Dịch gần như tức thì:** rê chuột lên nút **Dịch đoạn này** là extension bắt đầu dịch luôn, nên lúc bấm thường đã có bản dịch. Bản dịch dùng đúng **bộ máy dịch** và **chiều dịch** bạn chọn ở tab **Dịch**; với bộ máy AI, chữ hiện dần trong popup thay vì chờ dịch xong.
 - Khi đang bôi đen đoạn đủ dài, nút nổi, popup (icon hoặc `Alt+S`), nút **Tóm tắt trang này** trong Side Panel và chuột phải → *Tóm tắt đoạn đã chọn* cũng chỉ tóm tắt đoạn đó. Đoạn ngắn hơn 100 ký tự thì không hiện nút và vẫn tóm tắt cả trang.
 - Đoạn ngắn được tóm tắt gọn hơn (ít ý hơn). Kết quả của đoạn chọn không lưu bộ nhớ đệm, nên không ảnh hưởng bản tóm tắt cả trang đã có.
 - Không hiện nút khi bôi đen trong ô nhập liệu. Nút ẩn đi khi bỏ chọn, cuộn trang hoặc nhấn `Esc`; tắt cùng tuỳ chọn **Hiện nút tóm tắt nổi trên trang**.
@@ -111,12 +112,14 @@ Ngôn ngữ tóm tắt: **Song ngữ Anh–Việt** (mặc định) · Tiếng V
 - **Bôi đen tin cần trả lời** (cả khi tin nằm trong iframe, như nội dung ticket) rồi bấm Gửi: AI trả lời đúng đoạn đó; thanh ngữ cảnh ghi "kèm đoạn bôi đen". Đoạn bôi đen (từ 20 ký tự) được giữ cho cả hội thoại cho tới khi bạn bôi đoạn khác hoặc bấm 🗑. Không bôi đen thì AI trả lời email đang mở trên màn hình; với chuỗi thư/ticket thì trả lời tin **mới nhất của người gửi/khách** (bỏ qua ghi chú nội bộ và các lần trả lời trước của bạn). Bản nháp viết **theo ngôn ngữ của tin cần trả lời** (trừ khi bạn yêu cầu khác), có dòng Tiêu đề, dùng `[chỗ trống]` cho ngày, giá, cam kết hay tên người gửi không có trong tin — AI không tự bịa thông tin. Nếu trang không có tin nào để trả lời, AI nói rõ và nhờ bạn bôi đen tin cần trả lời.
 - Nếu không đọc được nội dung trang, tab báo lỗi và **không gửi** câu hỏi (không để AI trả lời như thể chưa thấy trang); bấm ⟳ để đọc lại.
 - Trả lời hiện dần từng chữ; `Shift+Enter` xuống dòng; nút **Dừng** cắt giữa lúc trả lời nhưng giữ lại phần đã viết; mỗi câu trả lời có nút **Sao chép**.
+- **Chuyển tab không làm dừng câu trả lời:** đang nhờ viết email ở tab này mà bạn sang tab khác (vd. đọc email khác) thì AI vẫn viết tiếp cho tab cũ; quay lại là thấy email đã viết xong (hoặc chữ đang hiện tiếp). Mỗi tab có hội thoại riêng nên vẫn hỏi được ở tab mới trong lúc đó. Chỉ khi đóng Side Panel hoặc bấm **Dừng** thì câu trả lời mới dừng.
 - Hội thoại nhiều lượt giữ nguyên ngữ cảnh, lưu tạm **theo từng trang** trong bộ nhớ phiên (mất khi đóng trình duyệt) — đóng và mở lại Side Panel trên cùng trang vẫn tiếp tục được. Nút ⟳ đọc lại nội dung trang, nút 🗑 xoá hội thoại ngay.
 - AI trả lời theo ngôn ngữ của câu hỏi bạn gõ.
+- Dưới mỗi câu trả lời có nút **Lưu làm mẫu**: lưu email bạn ưng ý (tối đa 3 mẫu) để những lần viết phản hồi sau AI viết theo văn phong đó. Xem và xoá mẫu trong tab **Cài đặt** → **Cá nhân hoá AI**.
 
 ### Nút tóm tắt nổi
 
-- Hiện trên mọi trang web (trừ trang hệ thống của Chrome, Chrome Web Store và PDF). Nút chỉ dựng giao diện, **không đọc nội dung trang cho tới khi bạn bấm** (riêng đoạn bạn bôi đen thì chỉ được đo độ dài ngay trên máy để quyết định hiện nút **Tóm tắt đoạn này** / **Dịch đoạn này**, không gửi đi đâu).
+- Hiện trên mọi trang web (trừ trang hệ thống của Chrome, Chrome Web Store và PDF). Nút chỉ dựng giao diện, **không đọc nội dung trang cho tới khi bạn bấm** (riêng đoạn bạn bôi đen thì được đo độ dài ngay trên máy để quyết định hiện nút **Tóm tắt đoạn này** / **Dịch đoạn này**; đoạn đó chỉ được gửi đi khi bạn bấm một trong hai nút, hoặc **rê chuột lên nút Dịch đoạn này** để dịch sẵn).
 - Kết quả dùng chung bộ nhớ đệm với popup và Side Panel. Nút **Mở bảng đầy đủ** trong thẻ mở Side Panel (nếu Chrome không cho, nhấn `Alt+S` rồi bấm **Mở bảng đầy đủ** trong popup).
 - Tắt nút: tab **Cài đặt** → bỏ chọn **Hiện nút tóm tắt nổi trên trang** (áp dụng ngay, không cần tải lại trang).
 - Sau khi cập nhật/tải lại extension, cần tải lại các trang đang mở để nút hoạt động lại.
@@ -124,6 +127,18 @@ Ngôn ngữ tóm tắt: **Song ngữ Anh–Việt** (mặc định) · Tiếng V
 ### Giao diện
 
 Tab **Cài đặt** → **Giao diện**: *Mặc định (xanh lá)* hoặc *Trắng hồng dịu*. Áp dụng cho popup, Side Panel, nút nổi, thẻ tóm tắt, popup dịch đoạn chọn và badge song ngữ trên trang. Theme hồng luôn ở tông sáng (kể cả khi máy đang ở chế độ tối) và đạt độ tương phản WCAG AA.
+
+### Cá nhân hoá AI
+
+Tab **Cài đặt** → **Cá nhân hoá AI** giúp AI viết đúng giọng của bạn thay vì văn dịch sát từng chữ:
+
+- **Mức suy luận** (*Tắt · Thấp · Vừa · Cao*, mặc định **Vừa**): áp dụng cho tóm tắt và Hỏi đáp. Mức càng cao AI viết càng tự nhiên, kỹ hơn, nhưng trả lời chậm hơn và tốn token hơn. Với OpenRouter để trống ô Model, mức *Tắt* tự chọn model miễn phí nhanh, các mức khác ưu tiên model miễn phí có suy luận. Dịch luôn chạy ở mức Tắt cho nhanh.
+- **Hướng dẫn chung cho AI**: cách bạn muốn AI viết (giọng văn, độ dài, những điều cần tránh…), áp dụng cho cả tóm tắt và Hỏi đáp. Phần này được đặt **ở cuối** lời dặn gửi cho AI nên được ưu tiên làm theo, nhưng không thay được định dạng bản tóm tắt.
+- **Quy tắc viết email**: cách xưng hô, câu mở đầu, chữ ký… áp dụng mỗi lần nhờ viết phản hồi.
+- **Bộ nhớ – thông tin về bạn**: tên, chức vụ, công ty, chữ ký… để AI dùng khi cần (không tự bịa thêm).
+- **Mẫu email đã lưu**: các câu trả lời bạn bấm **Lưu làm mẫu** trong tab Hỏi đáp (tối đa 3). AI chỉ học theo văn phong, không chép nội dung.
+
+Các ô tự lưu khi bạn gõ, mỗi ô tối đa 2.000 ký tự. Tất cả chỉ lưu trên máy bạn và được gửi kèm tới nhà cung cấp AI mỗi lần dùng (xem **Quyền riêng tư**).
 
 ## Nhà cung cấp AI hỗ trợ
 
@@ -154,11 +169,13 @@ Extension **không có máy chủ riêng**, không có analytics, không thu th�
 | Tóm tắt ở chế độ **Song ngữ** (mặc định) | Thêm: bản tóm tắt tiếng Việt (không phải cả trang) để dịch sang tiếng Anh | `translate.googleapis.com` (Google Translate). Nếu Google lỗi thì gửi cho nhà cung cấp AI |
 | Tóm tắt mà AI trả lời sai ngôn ngữ (vd. trang tiếng Trung → tóm tắt tiếng Trung) | Thêm: bản tóm tắt đó để dịch sang ngôn ngữ đã chọn | Chế độ **Song ngữ**: Google Translate, lỗi thì nhà cung cấp AI. Chế độ *Tiếng Việt* / *English*: chỉ nhà cung cấp AI |
 | Bật dịch song ngữ trang, dịch đoạn chọn, dịch nhanh | Chữ của các đoạn cần dịch | Bộ máy dịch đang chọn: Google (mặc định) hoặc nhà cung cấp AI |
+| Rê chuột lên nút **Dịch đoạn này** (kể cả khi không bấm) | Đoạn đang bôi đen, để dịch sẵn | Bộ máy dịch đang chọn: Google (mặc định) hoặc nhà cung cấp AI |
 | Hỏi đáp về trang (tab **Hỏi đáp**) | Câu hỏi của bạn + tiêu đề, URL, chữ của trang (tối đa 20.000 ký tự) + đoạn bạn đang bôi đen (nếu có, tối đa 8.000 ký tự) + bản tóm tắt đang xem (nếu có) + các lượt hội thoại trước | Nhà cung cấp AI bạn chọn |
+| Tóm tắt hoặc Hỏi đáp khi đã điền mục **Cá nhân hoá AI** | Thêm: hướng dẫn chung (tóm tắt và Hỏi đáp); quy tắc viết email và bộ nhớ (Hỏi đáp); mẫu email đã lưu (khi nhờ viết phản hồi) | Nhà cung cấp AI bạn chọn |
 | Kiểm tra kết nối | Một câu kiểm tra ngắn | Nhà cung cấp AI |
 | Tải danh sách model miễn phí / để trống ô Model | Không gửi dữ liệu của bạn (chỉ đọc danh sách model công khai) | `openrouter.ai` |
 
-- **Chỉ mở trang thì không gửi gì.** Nút nổi chỉ dựng giao diện. Nội dung trang chỉ được đọc khi chính bạn bấm, và script của trang web không thể "bấm hộ" (extension bỏ qua mọi cú bấm giả).
+- **Chỉ mở trang thì không gửi gì.** Nút nổi chỉ dựng giao diện. Nội dung trang chỉ được đọc khi chính bạn bấm (hoặc rê chuột lên nút **Dịch đoạn này** cạnh đoạn bôi đen), và script của trang web không thể "bấm hộ" hay "rê chuột hộ" (extension bỏ qua mọi thao tác giả).
 - **Kết quả tóm tắt** và **hội thoại Hỏi đáp** (kèm chữ của trang đã đọc cho tab đó) chỉ lưu tạm trong bộ nhớ phiên (`chrome.storage.session`) và mất khi đóng trình duyệt; xoá hội thoại bằng nút 🗑 trong tab Hỏi đáp.
 - **Model miễn phí:** dữ liệu gửi đi tuân theo chính sách của từng nhà cung cấp. Một số model miễn phí trên OpenRouter có thể được nhà cung cấp lưu lại hoặc dùng để huấn luyện; hãy xem phần cài đặt quyền riêng tư trong tài khoản OpenRouter.
 - **Nội dung nhạy cảm** (email, tài liệu nội bộ), nên chọn một trong các cách sau:
@@ -181,6 +198,21 @@ Extension **không có máy chủ riêng**, không có analytics, không thu th�
 - Tóm tắt đoạn bôi đen chỉ đọc vùng chọn ở trang chính (không đọc vùng chọn trong iframe hay trong ô nhập liệu).
 
 ## Thay đổi
+
+### v1.3.6
+- **Văn tự nhiên hơn, bớt dịch sát từng chữ:** AI được dặn diễn đạt lại như người bản ngữ cho cả tóm tắt và email trả lời, và mặc định dùng **mức suy luận Vừa**.
+- Mục mới **Cài đặt → Cá nhân hoá AI**: mức suy luận (Tắt / Thấp / Vừa / Cao), **hướng dẫn chung cho AI**, **quy tắc viết email**, **bộ nhớ** (thông tin về bạn) và **mẫu email đã lưu**. Các phần này được đặt ở cuối lời dặn gửi cho AI.
+- Tab **Hỏi đáp**: nút **Lưu làm mẫu** dưới mỗi câu trả lời để AI học theo văn phong email bạn ưng ý.
+- **Chuyển sang tab khác không còn làm dừng email đang viết:** AI viết tiếp cho tab cũ và lưu vào hội thoại của tab đó; quay lại là thấy kết quả.
+- Hỗ trợ mức suy luận cho OpenRouter, OpenAI, Claude và Gemini; model nào không nhận thì tự gọi lại không kèm tham số này.
+- Bảng **Quyền riêng tư** ghi thêm phần Cá nhân hoá AI được gửi kèm tới nhà cung cấp AI.
+
+### v1.3.5
+- **Dịch song ngữ cả trang nhanh hơn nhiều:** Google giờ dịch nhiều đoạn trong một lần gọi thay vì mỗi đoạn một lần (40 đoạn: từ ~9 giây xuống ~1 giây khi đo thử). Đoạn đang hiện trên màn hình được dịch trước, và đợt nào xong là hiện ngay, không chờ cả trang.
+- **Dịch đoạn bôi đen gần như tức thì:** rê chuột lên nút **Dịch đoạn này** là bắt đầu dịch sẵn, bấm là có bản dịch. Với bộ máy AI, chữ hiện dần trong popup.
+- Popup dịch đoạn chọn giờ theo **chiều dịch** chọn ở tab **Dịch** (trước đây luôn tự đoán Anh ⇄ Việt).
+- Tóm tắt song ngữ dịch phần tiếng Anh trong một lần gọi Google thay vì mỗi dòng một lần.
+- Bảng **Quyền riêng tư** ghi thêm: rê chuột lên nút **Dịch đoạn này** sẽ gửi đoạn bôi đen tới bộ máy dịch đang chọn.
 
 ### v1.3.4
 - **Giao diện mới** cho popup, Side Panel và nút nổi: thẻ dạng kính mờ, thanh tab có vệt trượt theo tab đang chọn, thêm icon cho tab và nút.

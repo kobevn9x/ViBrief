@@ -479,11 +479,11 @@ kbd {
   content: ""; display: inline-block; width: .45em; height: 1em; margin-left: 2px; vertical-align: -.15em;
   background: var(--accent); border-radius: 2px; animation: caret 1s steps(1) infinite;
 }
-.msg-copy {
+.msg-copy, .msg-save {
   border: 0; background: none; color: var(--muted); font: inherit; font-size: 11px;
   padding: 4px 0 0; cursor: pointer; transition: color var(--transition);
 }
-.msg-copy:hover { color: var(--accent); }
+.msg-copy:hover, .msg-save:hover { color: var(--accent); }
 
 .chat-empty {
   border: 1px dashed var(--border); border-radius: var(--radius);
@@ -514,3 +514,21 @@ kbd {
 .chat-input .btn { flex: none; min-width: 60px; }
 .chat-input .btn.stop { background: var(--danger); color: #fff; }
 @media (prefers-reduced-motion: reduce) { .chat-msg.streaming .md *::after { animation: none !important; } }
+
+/* ---------------------------------------------------------------- cá nhân hoá AI */
+.field-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.counter { font-size: 11px; font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; }
+.examples { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.examples:empty { display: none; }
+.examples li {
+  display: flex; align-items: flex-start; gap: 8px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 10px;
+  background: var(--surface-solid); font-size: 12.5px; color: var(--text);
+}
+.ex-text {
+  flex: 1; min-width: 0; white-space: pre-wrap;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.ex-del { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 12px; padding: 0 2px; }
+.ex-del:hover { color: var(--danger, #c0392b); }
+.msg-save { margin-left: 12px; }

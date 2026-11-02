@@ -452,13 +452,22 @@ mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3
       selBar.hidden = true;
       openCard("selection", selAnchor);
     });
-    // Dịch: background nạp bilingual.js rồi hiện popup dịch cạnh vùng chọn (chữ do bilingual.js tự đọc từ vùng chọn)
+    // Dịch: rê chuột lên nút là background dịch sẵn (bộ máy + chiều dịch theo cài đặt), bấm thì nạp bilingual.js
+    // và hiện popup dịch cạnh vùng chọn với đúng tác vụ đó. isTrusted: trang web không được "rê chuột hộ" để tiêu quota.
+    let prefetched = "";
+    trBtn.addEventListener("pointerenter", (e) => {
+      if (!e.isTrusted || !alive()) return;
+      const text = String(getSelection() || "").trim();
+      if (!text || text === prefetched) return;
+      prefetched = text;
+      chrome.runtime.sendMessage({ type: "prefetch-selection", text }).catch(() => {});
+    });
     trBtn.addEventListener("click", async (e) => {
       if (!e.isTrusted) return;
       selBar.hidden = true;
       try {
         if (!alive()) throw new Error("Extension context invalidated.");
-        const res = await chrome.runtime.sendMessage({ type: "translate-selection" });
+        const res = await chrome.runtime.sendMessage({ type: "translate-selection", text: String(getSelection() || "") });
         if (res && !res.ok) throw new Error(res.error);
       } catch (err) {
         if (!card.hidden) closeCard();
@@ -471,7 +480,7 @@ mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3
     for (const b of [fab, selBtn, trBtn]) b.addEventListener("mousedown", (e) => e.preventDefault());
 
     // ------------------------------------------------------------ nút cạnh đoạn bôi đen
-    // Chỉ xem vùng chọn để quyết định hiện nút; chữ của trang không được gửi từ đây.
+    // Chỉ xem vùng chọn để quyết định hiện nút; chữ chỉ được gửi đi khi rê chuột lên / bấm nút Dịch hoặc bấm Tóm tắt.
     function selectionInfo() {
       const sel = getSelection();
       if (!sel || sel.isCollapsed || !sel.rangeCount) return null;

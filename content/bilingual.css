@@ -112,6 +112,13 @@
   color: #9e2053;
 }
 .tldrvi-pop-body { padding: 10px 12px 12px; white-space: pre-wrap; }
+/* bản dịch AI đang về dần: con trỏ nhấp nháy như phần tóm tắt */
+.tldrvi-pop-body.streaming::after {
+  content: ""; display: inline-block; width: .45em; height: 1em; margin-left: 2px; vertical-align: -.15em;
+  background: var(--tldrvi-accent, #2f9e7a); border-radius: 2px; animation: tldrviCaret 1s steps(1) infinite;
+}
+@keyframes tldrviCaret { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .tldrvi-pop-body.streaming::after { animation: none !important; } }
 @media (prefers-color-scheme: dark) {
   .tldrvi-pop { background: #1b2420; color: #e6efeb; border-color: #33423b; }
   .tldrvi-pop-head { border-color: #2c3833; color: #6fd3ad; }

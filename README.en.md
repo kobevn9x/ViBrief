@@ -98,6 +98,7 @@ The active shortcuts are shown at the bottom of the popup and in **Cài đặt**
 ### Summarizing highlighted text
 
 - Highlight text **longer than 100 characters** → two small buttons, **Tóm tắt đoạn này** and **Dịch đoạn này**, appear right below the selection. Summarize shows the result card next to that text and sends **only that text** to the AI; translate shows the translation popup right next to it.
+- **Near-instant translation:** hovering over **Dịch đoạn này** starts translating right away, so the translation is usually ready by the time you click. It uses the **translation engine** and **direction** you chose in the **Dịch** tab; with the AI engine, the text appears word by word in the popup instead of after the whole translation is done.
 - While a long enough selection is active, the floating button, the popup (icon or `Alt+S`), the **Tóm tắt trang này** button in the Side Panel and right-click → *Tóm tắt đoạn đã chọn* also summarize only that text. Selections shorter than 100 characters show no buttons and the whole page is summarized.
 - Short selections get a more compact summary (fewer points). Selection summaries are not cached, so they don't affect an existing summary of the whole page.
 - The buttons don't appear for selections inside input fields. They hide when you clear the selection, scroll or press `Esc`, and are turned off together with the **Hiện nút tóm tắt nổi trên trang** (*Show the floating summary button*) option.
@@ -113,12 +114,14 @@ Summary language: **Song ngữ Anh–Việt** (*Bilingual English–Vietnamese*,
 - **Highlight the message to answer** (even inside an iframe, like a ticket body) and click Send: the AI answers exactly that text, and the context bar says "kèm đoạn bôi đen" (*with highlighted text*). The highlighted text (20 characters or more) is kept for the whole conversation until you highlight something else or click 🗑. Without a selection, the AI answers the email open on screen; for an email thread or ticket it answers the **latest message from the sender/customer** (skipping internal notes and your earlier replies). The draft is written **in the language of the message being answered** (unless you ask otherwise), has a Subject line, and uses `[placeholders]` for dates, prices, commitments or the sender's name that are not in the message: the AI never makes up information. If the page has no message to answer, the AI says so and asks you to highlight the message.
 - If the page content cannot be read, the tab shows an error and **does not send** the question (so the AI doesn't answer as if it had never seen the page); click ⟳ to read it again.
 - Answers appear word by word; `Shift+Enter` adds a new line; the **Dừng** (*Stop*) button stops the answer but keeps what was already written; each answer has a **Sao chép** button.
+- **Switching tabs doesn't stop an answer:** if you ask for an email in one tab and then move to another tab (e.g. to read another email), the AI keeps writing for the first tab; come back and the email is finished (or still appearing). Each tab has its own conversation, so you can keep asking in the new tab meanwhile. An answer stops only when you close the Side Panel or click **Dừng**.
 - Multi-turn conversations keep their context and are stored temporarily **per page** in session storage (cleared when the browser closes): closing and reopening the Side Panel on the same page continues the conversation. The ⟳ button re-reads the page, the 🗑 button clears the conversation immediately.
 - The AI answers in the language of your question.
+- Each answer has a **Lưu làm mẫu** (*Save as example*) button: it saves an email you like (up to 3 examples) so the AI matches that style the next time it drafts a reply. View and delete examples in **Cài đặt** → **Cá nhân hoá AI** (*Personalize AI*).
 
 ### Floating summary button
 
-- Shown on every web page (except Chrome's system pages, the Chrome Web Store and PDFs). The button only builds its UI and **does not read the page until you click it** (the only exception is text you highlight, whose length is measured locally to decide whether to show the **Tóm tắt đoạn này** / **Dịch đoạn này** buttons; it is not sent anywhere).
+- Shown on every web page (except Chrome's system pages, the Chrome Web Store and PDFs). The button only builds its UI and **does not read the page until you click it** (the only exception is text you highlight, whose length is measured locally to decide whether to show the **Tóm tắt đoạn này** / **Dịch đoạn này** buttons; that text is sent only when you click one of the buttons, or **hover over Dịch đoạn này** to pre-translate it).
 - Results share the same cache as the popup and the Side Panel. The **Mở bảng đầy đủ** button in the card opens the Side Panel (if Chrome refuses, press `Alt+S` and click **Mở bảng đầy đủ** in the popup).
 - To turn the button off: **Cài đặt** tab → uncheck **Hiện nút tóm tắt nổi trên trang** (applies immediately, no page reload needed).
 - After updating or reloading the extension, reload the open pages so the button works again.
@@ -126,6 +129,18 @@ Summary language: **Song ngữ Anh–Việt** (*Bilingual English–Vietnamese*,
 ### Themes
 
 **Cài đặt** tab → **Giao diện** (*Theme*): *Mặc định (xanh lá)* or *Trắng hồng dịu*. Applies to the popup, the Side Panel, the floating button, the summary card, the selection translation popup and the bilingual badge on the page. The pink theme always stays light (even when your system is in dark mode) and meets WCAG AA contrast.
+
+### Personalize AI
+
+The **Cài đặt** tab → **Cá nhân hoá AI** (*Personalize AI*) helps the AI write in your voice instead of word-for-word translated prose:
+
+- **Mức suy luận** (*Reasoning level*: *Tắt* Off · *Thấp* Low · *Vừa* Medium · *Cao* High, default **Medium**): applies to summaries and Q&A. Higher levels write more naturally and carefully but answer more slowly and use more tokens. With OpenRouter and an empty Model field, *Off* auto-picks a fast free model, other levels prefer free models that support reasoning. Translation always runs at Off for speed.
+- **Hướng dẫn chung cho AI** (*General instructions for the AI*): how you want the AI to write (tone, length, things to avoid…), for both summaries and Q&A. It is placed **at the end** of the instructions sent to the AI so it takes priority, but it cannot change the summary format.
+- **Quy tắc viết email** (*Email rules*): forms of address, opening line, signature… applied whenever you ask for a reply.
+- **Bộ nhớ – thông tin về bạn** (*Memory – about you*): your name, role, company, signature… for the AI to use when relevant (it never invents more).
+- **Mẫu email đã lưu** (*Saved email examples*): answers you saved with **Lưu làm mẫu** in the Q&A tab (up to 3). The AI only copies their style, not their content.
+
+The fields save automatically as you type, up to 2,000 characters each. Everything is stored only on your computer and is sent to the AI provider along with each request (see **Privacy**).
 
 ## Supported AI providers
 
@@ -156,11 +171,13 @@ The extension has **no server of its own**, no analytics, and collects no data. 
 | Summarize in **Bilingual** mode (default) | Additionally: the Vietnamese summary (not the whole page) to translate it into English | `translate.googleapis.com` (Google Translate). If Google fails, it is sent to the AI provider |
 | Summarize when the AI answers in the wrong language (e.g. a Chinese page → a Chinese summary) | Additionally: that summary, to translate it into the chosen language | **Bilingual** mode: Google Translate, or the AI provider if that fails. *Tiếng Việt* / *English* mode: the AI provider only |
 | Turn on page translation, translate a selection, quick translate | The text of the paragraphs to translate | The selected translation engine: Google (default) or the AI provider |
+| Hover over the **Dịch đoạn này** button (even without clicking) | The highlighted text, to pre-translate it | The selected translation engine: Google (default) or the AI provider |
 | Chat about the page (**Hỏi đáp** tab) | Your question + the page's title, URL and text (up to 20,000 characters) + the text you have highlighted (if any, up to 8,000 characters) + the summary you are viewing (if any) + the previous turns | The AI provider you chose |
+| Summarize or chat after filling in **Cá nhân hoá AI** | Additionally: the general instructions (summaries and Q&A); the email rules and memory (Q&A); the saved email examples (when asking for a reply) | The AI provider you chose |
 | Test the connection | A short test sentence | The AI provider |
 | Load free models / leave the Model field empty | None of your data (only reads the public model list) | `openrouter.ai` |
 
-- **Simply opening a page sends nothing.** The floating button only builds its UI. Page content is read only when you click yourself, and the web page's scripts cannot "click for you" (the extension ignores all synthetic clicks).
+- **Simply opening a page sends nothing.** The floating button only builds its UI. Page content is read only when you click yourself (or hover over the **Dịch đoạn này** button next to highlighted text), and the web page's scripts cannot "click" or "hover" for you (the extension ignores all synthetic events).
 - **Summaries** and **Hỏi đáp conversations** (including the page text read for that tab) are stored only temporarily in session storage (`chrome.storage.session`) and are cleared when the browser closes; clear a conversation with the 🗑 button in the Hỏi đáp tab.
 - **Free models:** data sent is subject to each provider's policy. Some free models on OpenRouter may be logged or used for training by their provider; check the privacy settings in your OpenRouter account.
 - **For sensitive content** (emails, internal documents), use one of these options:
@@ -183,6 +200,21 @@ The extension has **no server of its own**, no analytics, and collects no data. 
 - Summarizing highlighted text reads only the selection in the main page (not selections inside iframes or input fields).
 
 ## Changelog
+
+### v1.3.6
+- **More natural writing, less word-for-word translation:** the AI is told to rephrase like a native speaker for both summaries and email replies, and uses the **Medium reasoning level** by default.
+- New **Cài đặt → Cá nhân hoá AI** section: reasoning level (Off / Low / Medium / High), **general instructions for the AI**, **email rules**, **memory** (about you) and **saved email examples**. These are placed at the end of the instructions sent to the AI.
+- **Hỏi đáp** tab: a **Lưu làm mẫu** button under each answer, so the AI learns the style of emails you like.
+- **Switching to another tab no longer stops an email being written:** the AI keeps writing for the first tab and saves it in that tab's conversation; come back to see the result.
+- Reasoning levels are supported for OpenRouter, OpenAI, Claude and Gemini; a model that rejects the parameter is retried without it.
+- The **Privacy** table now lists the Personalize AI fields sent to the AI provider.
+
+### v1.3.5
+- **Much faster bilingual page translation:** Google now translates many paragraphs per request instead of one request per paragraph (40 paragraphs: from ~9 seconds down to ~1 second in our test). Paragraphs on screen are translated first, and each batch appears as soon as it is ready instead of waiting for the whole page.
+- **Near-instant translation of highlighted text:** hovering over **Dịch đoạn này** starts translating, so clicking shows the result right away. With the AI engine, the text appears word by word in the popup.
+- The selection translation popup now follows the **direction** chosen in the **Dịch** tab (it used to always auto-detect English ⇄ Vietnamese).
+- Bilingual summaries translate the English part in one Google request instead of one request per line.
+- The **Privacy** table now notes that hovering over **Dịch đoạn này** sends the highlighted text to the selected translation engine.
 
 ### v1.3.4
 - **New look** for the popup, the Side Panel and the floating button: frosted-glass cards, a tab bar whose highlight slides to the selected tab, and icons on tabs and buttons.
