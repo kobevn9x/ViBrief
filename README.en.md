@@ -201,6 +201,9 @@ The extension has **no server of its own**, no analytics, and collects no data. 
 
 ## Changelog
 
+### v1.3.7
+- The hint examples in the **Cài đặt → Cá nhân hoá AI** fields now use a generic sample name and company.
+
 ### v1.3.6
 - **More natural writing, less word-for-word translation:** the AI is told to rephrase like a native speaker for both summaries and email replies, and uses the **Medium reasoning level** by default.
 - New **Cài đặt → Cá nhân hoá AI** section: reasoning level (Off / Low / Medium / High), **general instructions for the AI**, **email rules**, **memory** (about you) and **saved email examples**. These are placed at the end of the instructions sent to the AI.

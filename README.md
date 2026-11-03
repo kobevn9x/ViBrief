@@ -199,6 +199,9 @@ Extension **không có máy chủ riêng**, không có analytics, không thu th�
 
 ## Thay đổi
 
+### v1.3.7
+- Ví dụ gợi ý trong các ô **Cài đặt → Cá nhân hoá AI** dùng tên và công ty minh hoạ chung chung.
+
 ### v1.3.6
 - **Văn tự nhiên hơn, bớt dịch sát từng chữ:** AI được dặn diễn đạt lại như người bản ngữ cho cả tóm tắt và email trả lời, và mặc định dùng **mức suy luận Vừa**.
 - Mục mới **Cài đặt → Cá nhân hoá AI**: mức suy luận (Tắt / Thấp / Vừa / Cao), **hướng dẫn chung cho AI**, **quy tắc viết email**, **bộ nhớ** (thông tin về bạn) và **mẫu email đã lưu**. Các phần này được đặt ở cuối lời dặn gửi cho AI.
