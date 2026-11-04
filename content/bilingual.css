@@ -8,17 +8,17 @@
 }
 
 :root[data-theme="pink"], [data-tldrvi-theme="pink"] {
-  --tldrvi-accent: #9e2053;
-  --tldrvi-accent-pop: #9e2053;
+  --tldrvi-accent: #b83a6b;
+  --tldrvi-accent-pop: #b83a6b;
   --tldrvi-btn-hover: #fce4ee;
-  --tldrvi-border: #e2b8cb;
+  --tldrvi-border: #ecd0dd;
 }
 
 /* Đoạn đang chờ dịch */
 [data-tldrvi="loading"] { background-image: linear-gradient(90deg, rgba(47,158,122,0.10), rgba(47,158,122,0)); }
 [data-tldrvi-theme="pink"] [data-tldrvi="loading"],
 :root[data-theme="pink"] [data-tldrvi="loading"] {
-  background-image: linear-gradient(90deg, rgba(158,32,83,0.12), rgba(158,32,83,0));
+  background-image: linear-gradient(90deg, rgba(184, 58, 107,0.12), rgba(184, 58, 107,0));
 }
 
 /* Badge trạng thái góc phải dưới */
@@ -35,9 +35,9 @@
 }
 .tldrvi-badge[data-theme="pink"],
 [data-tldrvi-theme="pink"] .tldrvi-badge {
-  background: #26161f;
+  background: #4a2d3b;
   color: #fce4ee;
-  border: 1px solid rgba(226, 184, 203, 0.4);
+  border: 1px solid rgba(236, 208, 221, 0.4);
 }
 .tldrvi-badge-dot { width: 8px; height: 8px; border-radius: 50%; background: #3ccf9b; }
 .tldrvi-badge[data-theme="pink"] .tldrvi-badge-dot,
@@ -74,9 +74,9 @@
 .tldrvi-pop[data-theme="pink"],
 [data-tldrvi-theme="pink"] .tldrvi-pop {
   background: rgba(254, 246, 250, 0.92);
-  color: #26161f;
-  border: 1px solid rgba(226, 184, 203, 0.85);
-  box-shadow: 0 12px 36px rgba(158, 32, 83, 0.15), inset 0 1px 1.5px #ffffff;
+  color: #4a2d3b;
+  border: 1px solid rgba(236, 208, 221, 0.85);
+  box-shadow: 0 12px 36px rgba(184, 58, 107, 0.15), inset 0 1px 1.5px #ffffff;
 }
 @keyframes tldrviDrop {
   0% { opacity: 0; transform: scale(0.85) translateY(-8px); }
@@ -103,13 +103,13 @@
 }
 .tldrvi-pop[data-theme="pink"] button,
 [data-tldrvi-theme="pink"] .tldrvi-pop button {
-  color: #5e3f4e;
+  color: #7a5568;
 }
 .tldrvi-pop button:hover { background: var(--tldrvi-btn-hover, #eef4f1); }
 .tldrvi-pop[data-theme="pink"] button:hover,
 [data-tldrvi-theme="pink"] .tldrvi-pop button:hover {
   background: #fce4ee;
-  color: #9e2053;
+  color: #b83a6b;
 }
 .tldrvi-pop-body { padding: 10px 12px 12px; white-space: pre-wrap; }
 /* bản dịch AI đang về dần: con trỏ nhấp nháy như phần tóm tắt */
@@ -127,21 +127,21 @@
   .tldrvi-pop[data-theme="pink"],
   [data-tldrvi-theme="pink"] .tldrvi-pop {
     background: rgba(254, 246, 250, 0.95);
-    color: #26161f;
-    border-color: rgba(226, 184, 203, 0.85);
+    color: #4a2d3b;
+    border-color: rgba(236, 208, 221, 0.85);
   }
   .tldrvi-pop[data-theme="pink"] .tldrvi-pop-head,
   [data-tldrvi-theme="pink"] .tldrvi-pop .tldrvi-pop-head {
-    border-color: #e2b8cb;
-    color: #9e2053;
+    border-color: #ecd0dd;
+    color: #b83a6b;
   }
   .tldrvi-pop[data-theme="pink"] button,
   [data-tldrvi-theme="pink"] .tldrvi-pop button {
-    color: #5e3f4e;
+    color: #7a5568;
   }
   .tldrvi-pop[data-theme="pink"] button:hover,
   [data-tldrvi-theme="pink"] .tldrvi-pop button:hover {
     background: #fce4ee;
-    color: #9e2053;
+    color: #b83a6b;
   }
 }

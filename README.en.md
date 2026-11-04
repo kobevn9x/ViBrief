@@ -201,6 +201,13 @@ The extension has **no server of its own**, no analytics, and collects no data. 
 
 ## Changelog
 
+### v1.3.8
+- **Bigger input box in the Hỏi đáp tab:** about 4 lines tall, grows with its content and can be resized from the bottom-right corner.
+- **Softer "Trắng hồng dịu" theme:** text and accent colors are less intense, borders lighter.
+- **Fix:** ordinary questions containing "trả lời" (e.g. "trả lời ngắn gọn: bài này nói gì?") are no longer treated as a request to write an email reply.
+- **Each browser tab remembers its active function:** Tab 1 is on Hỏi đáp (writing an email), you go to Tab 2 to translate, and coming back to Tab 1 it is still on Hỏi đáp. A tab you haven't used opens on Tóm tắt; if you are on Cài đặt, switching tabs keeps you there.
+- **Fix:** switching to another page and sending right away no longer mixes the new page's content into the old page's conversation.
+
 ### v1.3.7
 - The hint examples in the **Cài đặt → Cá nhân hoá AI** fields now use a generic sample name and company.
 

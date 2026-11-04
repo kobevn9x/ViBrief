@@ -54,16 +54,16 @@
   --surface-hover: rgba(255, 255, 255, 0.90);
   --surface-solid: #ffffff;
   --border: rgba(244, 214, 227, 0.70);
-  --border-outer: rgba(190, 56, 111, 0.08);
-  --text: #371b28;
-  --muted: #835b6f;
-  --accent: #be386f;
-  --accent-hover: #a52d5e;
+  --border-outer: rgba(192, 69, 120, 0.08);
+  --text: #4a2d3b;
+  --muted: #8a6577;
+  --accent: #c04578;
+  --accent-hover: #a8386a;
   --accent-ink: #ffffff;
-  --accent-soft: rgba(190, 56, 111, 0.10);
+  --accent-soft: rgba(192, 69, 120, 0.10);
   --mark: #fce7f3;
   --danger: #dc2626;
-  --glass-shadow: 0 4px 20px -2px rgba(190, 56, 111, 0.08), 0 2px 6px rgba(0, 0, 0, 0.03);
+  --glass-shadow: 0 4px 20px -2px rgba(192, 69, 120, 0.08), 0 2px 6px rgba(0, 0, 0, 0.03);
   --glass-inner: inset 0 1px 0 rgba(255, 255, 255, 0.9);
   color-scheme: light;
 }
@@ -106,7 +106,7 @@ body {
   width: 100%;
 }
 :root[data-theme="pink"] .tabs {
-  background: rgba(190, 56, 111, 0.06);
+  background: rgba(192, 69, 120, 0.06);
   border-color: rgba(244, 214, 227, 0.6);
 }
 
@@ -125,7 +125,7 @@ body {
   will-change: transform, width;
 }
 :root[data-theme="pink"] .tab-indicator {
-  box-shadow: 0 3px 10px rgba(190, 56, 111, 0.12), inset 0 1px 0 #ffffff;
+  box-shadow: 0 3px 10px rgba(192, 69, 120, 0.12), inset 0 1px 0 #ffffff;
 }
 
 .tabs button {
@@ -510,7 +510,7 @@ kbd {
   background: var(--bg);
   display: flex; gap: 10px; align-items: flex-end; padding: 10px 0 2px;
 }
-.chat-input textarea { flex: 1; min-height: 44px; max-height: 132px; resize: none; }
+.chat-input textarea { flex: 1; min-height: 96px; max-height: 50vh; resize: vertical; field-sizing: content; }
 .chat-input .btn { flex: none; min-width: 60px; }
 .chat-input .btn.stop { background: var(--danger); color: #fff; }
 @media (prefers-reduced-motion: reduce) { .chat-msg.streaming .md *::after { animation: none !important; } }

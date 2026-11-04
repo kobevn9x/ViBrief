@@ -11,14 +11,15 @@
     try { old.stop ? old.stop() : old.toggle?.(false); } catch { /* ignore */ }
   }
 
+  // lib/core.js được nạp trước file này (executeScript files) – phần thuần dùng chung với service worker
+  const { MAX_LEN, isVietnamese, targetFor: targetForDir, anchorFrom, rankOf } = globalThis.__tldrviCore;
+
   const SKIP_SEL = "script, style, noscript, template, code, pre, kbd, samp, textarea, input, select, option, button, svg, math, canvas, iframe, [contenteditable=''], [contenteditable='true'], .tldrvi-tr, .tldrvi-badge, .tldrvi-pop, [translate='no'], .notranslate";
   const OURS_SEL = ".tldrvi-tr, .tldrvi-badge, .tldrvi-pop";
   const BLOCK_TAGS = new Set(["P","LI","H1","H2","H3","H4","H5","H6","BLOCKQUOTE","DD","DT","FIGCAPTION","TD","TH","CAPTION","SUMMARY","DIV","SECTION","ARTICLE","UL","OL","TABLE","TR","TBODY","FORM","HEADER","FOOTER","NAV","ASIDE","MAIN","FIGURE","DL","PRE"]);
   // menu, tab, nút…: bản dịch ngắn đặt cùng dòng thay vì chèn khối mới (tránh vỡ bố cục)
   const INLINE_CTX = "nav, menu, [role='navigation'], [role='menu'], [role='menubar'], [role='menuitem'], [role='tablist'], [role='tab'], [role='button'], [role='toolbar']";
-  const VI_CHARS = /[ăâđêôơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/gi;
   const HAS_WORD = /\p{L}{2,}/u;
-  const MAX_LEN = 4500;
   const MAX_RESETS = 3; // trang render lại liên tục (SPA) → thôi chèn lại sau 3 lần
   const RETRY_MS = 4000;
   const BATCH = 20; // đoạn mỗi lần gửi về background (Google: 1 request cho cả lô)
@@ -32,7 +33,7 @@
   --tldrvi-accent: #2f9e7a;
 }
 :root[data-theme="pink"], [data-tldrvi-theme="pink"] {
-  --tldrvi-accent: #9e2053;
+  --tldrvi-accent: #b83a6b;
 }
 .tldrvi-tr {
   display: block !important;
@@ -84,13 +85,7 @@ h1 > .tldrvi-tr, h2 > .tldrvi-tr, h3 > .tldrvi-tr { font-size: 0.8em !important;
     theme: "default"
   };
 
-  const isVietnamese = (t) => {
-    const letters = (t.match(/\p{L}/gu) || []).length;
-    if (!letters) return false;
-    return (t.match(VI_CHARS) || []).length / letters > 0.04;
-  };
-  const targetFor = (t) =>
-    state.direction === "en2vi" ? "vi" : state.direction === "vi2en" ? "en" : isVietnamese(t) ? "en" : "vi";
+  const targetFor = (t) => targetForDir(t, state.direction);
 
   const clean = (s) => (s || "").replace(/\s+/g, " ").trim();
   const textOf = (el) => clean(el.innerText);
@@ -306,7 +301,7 @@ h1 > .tldrvi-tr, h2 > .tldrvi-tr, h3 > .tldrvi-tr { font-size: 0.8em !important;
     const vh = innerHeight;
     const rank = new Map(units.map((u) => {
       const r = u.host.getBoundingClientRect();
-      return [u, r.bottom >= 0 && r.top < vh ? r.top : r.top >= vh ? 1e6 + r.top : 2e6 - r.top];
+      return [u, rankOf(r.top, r.bottom, vh)];
     }));
     return units.sort((a, b) => rank.get(a) - rank.get(b));
   }
@@ -538,12 +533,7 @@ h1 > .tldrvi-tr, h2 > .tldrvi-tr, h3 > .tldrvi-tr { font-size: 0.8em !important;
   function popupAnchor() {
     const sel = getSelection();
     const rects = sel && sel.rangeCount ? [...sel.getRangeAt(0).getClientRects()].filter((r) => r.width || r.height) : [];
-    const p = window.__tldrviPointer;
-    const near = (r) => p.x >= r.left - 40 && p.x <= r.right + 40 && p.y >= r.top - 40 && p.y <= r.bottom + 40;
-    if (p && rects.some(near)) return { x: p.x, y: p.y };
-    const last = rects[rects.length - 1];
-    if (last) return { x: Math.min(Math.max(0, last.right), window.innerWidth), y: Math.min(Math.max(0, last.top), window.innerHeight) };
-    return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    return anchorFrom(rects, window.__tldrviPointer, window.innerWidth, window.innerHeight);
   }
 
   // Đặt popup ngay phía trên điểm neo (đủ chỗ thì lên trên, không thì xuống dưới; thiếu cả hai thì co chiều cao).

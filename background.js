@@ -25,17 +25,17 @@ async function ensureBilingual(tabId) {
   });
   if (alive) return;
   await chrome.scripting.insertCSS({ target: { tabId }, files: ["content/bilingual.css"] });
-  await chrome.scripting.executeScript({ target: { tabId }, files: ["content/bilingual.js"] });
+  await chrome.scripting.executeScript({ target: { tabId }, files: ["lib/core.js", "content/bilingual.js"] });
 }
 
 // ---------------------------------------------------------------- dịch đoạn bôi đen
 // Một tác vụ cho mỗi (bộ máy, ngôn ngữ đích, đoạn): rê chuột lên nút "Dịch đoạn này" bắt đầu dịch sẵn,
 // bấm nút / popup dịch dùng lại đúng tác vụ đó (cùng kiểu dùng chung yêu cầu đang chạy như summarizeTab).
-const SEL_MAX = 4500; // = MAX_LEN trong content/bilingual.js
+const { MAX_LEN } = globalThis.__tldrviCore; // cùng giới hạn với content/bilingual.js
 const SEL_TTL = 2 * 60 * 1000;
 const selJobs = new Map(); // key → {partial, result, error, listeners, at}
 
-const normalizeSel = (text) => String(text || "").trim().slice(0, SEL_MAX);
+const normalizeSel = (text) => String(text || "").trim().slice(0, MAX_LEN);
 
 function startSelJob(settings, text, target) {
   const engine = settings.translateEngine === "llm" ? "llm" : "google";

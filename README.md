@@ -199,6 +199,13 @@ Extension **không có máy chủ riêng**, không có analytics, không thu th�
 
 ## Thay đổi
 
+### v1.3.8
+- **Ô nhập tab Hỏi đáp to hơn:** cao khoảng 4 dòng, tự cao theo nội dung và kéo giãn được bằng góc dưới-phải.
+- **Giao diện "Trắng hồng dịu" dịu mắt hơn:** chữ và màu nhấn bớt đậm, viền nhạt hơn.
+- **Sửa lỗi:** câu hỏi thường có chữ "trả lời" (vd. "trả lời ngắn gọn: bài này nói gì?") không còn bị coi là yêu cầu viết email phản hồi.
+- **Mỗi tab trình duyệt nhớ chức năng đang dùng:** Tab 1 đang ở Hỏi đáp (viết email), sang Tab 2 để Dịch, quay lại Tab 1 vẫn là Hỏi đáp. Tab chưa dùng sẽ mở ở Tóm tắt; đang ở Cài đặt thì đổi tab vẫn ở Cài đặt.
+- **Sửa lỗi:** đổi sang trang khác rồi gửi ngay không còn làm lẫn nội dung trang mới vào hội thoại của trang cũ.
+
 ### v1.3.7
 - Ví dụ gợi ý trong các ô **Cài đặt → Cá nhân hoá AI** dùng tên và công ty minh hoạ chung chung.
 

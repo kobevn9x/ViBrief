@@ -1,7 +1,8 @@
 import { getSettings, saveSettings, hasLLMKey } from "../lib/settings.js";
 import { callLLM, listOpenRouterFreeModels, resolveModel } from "../lib/llm.js";
 import { canAccess, extractPage, getSelectionText } from "../lib/extract.js";
-import { chatWithPage, trimTurns, getCachedChat, setCachedChat, clearCachedChat, looksLikeMail, REPLY_PROMPT, REPLY_STYLES } from "../lib/chat.js";
+import { chatWithPage, getCachedChat, setCachedChat, clearCachedChat, looksLikeMail, REPLY_PROMPT, REPLY_STYLES } from "../lib/chat.js";
+import { createChatSession } from "../lib/chat-session.js";
 import { renderSummaryHTML, summaryToPlainText, getCachedSummary } from "../lib/summary-view.js";
 import { streamSummary, frameThrottle } from "../lib/summary-client.js";
 import { targetFor } from "../lib/translate.js";
@@ -12,6 +13,10 @@ const $ = (id) => document.getElementById(id);
 let settings = await getSettings();
 applyTheme();
 let currentTab = null;
+// Chức năng (Tóm tắt / Dịch / Hỏi đáp) đang dùng ở từng tab trình duyệt: panel dùng chung cả cửa sổ nên phải tự nhớ
+// theo tab, lưu session để đóng/mở lại panel vẫn còn; Cài đặt không được nhớ (chỉ là nơi ghé qua).
+let fnByTab = (await chrome.storage.session.get("panelFn")).panelFn || {};
+const saveFnByTab = () => chrome.storage.session.set({ panelFn: fnByTab }).catch(() => {});
 let summarySeq = 0; // tăng mỗi lần đổi trang / tóm tắt lại → bỏ qua kết quả cũ về muộn
 
 // ---------------------------------------------------------------- tabs UI + Liquid Glass Gliding
@@ -53,6 +58,10 @@ function showTab(name) {
   document.querySelectorAll(".tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === name)));
   document.querySelectorAll(".panel").forEach((p) => (p.hidden = p.id !== "tab-" + name));
   updateActiveIndicator();
+  if (name !== "settings" && currentTab && fnByTab[currentTab.id] !== name) {
+    fnByTab[currentTab.id] = name;
+    saveFnByTab();
+  }
   if (name === "translate") refreshBilingualState();
 }
 
@@ -89,10 +98,13 @@ async function refreshPage() {
   currentTab = await getActiveTab();
   if (prev && currentTab && prev.id === currentTab.id && prev.url === currentTab.url) {
     $("pageTitle").textContent = currentTab.title || "—";
+    chat.setPage(currentTab); // cùng url: chỉ cập nhật tiêu đề/tab của hội thoại
     updateChatCtxBar();
     return; // cùng trang – giữ nguyên kết quả / tiến trình
   }
   $("pageTitle").textContent = currentTab?.title || "—";
+  // đổi sang tab khác: về chức năng tab đó đang dùng (chưa dùng → Tóm tắt); đang ở Cài đặt thì giữ nguyên
+  if (currentTab && prev?.id !== currentTab.id && $("tab-settings").hidden) showTab(fnByTab[currentTab.id] || "summary");
   let host = "";
   try { host = new URL(currentTab.url).hostname; } catch { /* ignore */ }
   $("pageHost").textContent = host;
@@ -101,7 +113,7 @@ async function refreshPage() {
   // reset kết quả cũ khi đổi trang
   summarySeq++;
   lastSummary = null;
-  resetChatForPage();
+  chat.setPage(currentTab); // đổi hội thoại ngay trong cùng nhịp với currentTab (storage nạp ở nền)
   $("btnSummarize").disabled = false;
   $("summaryResult").hidden = true;
   setStatus($("summaryStatus"), "");
@@ -296,11 +308,15 @@ $("btnCopyQt").addEventListener("click", (e) => copy($("qtOutput").textContent, 
 // ---------------------------------------------------------------- hỏi đáp
 // Chat với AI về trang đang xem (gọi thẳng lib/ như nút "Kiểm tra kết nối", không qua background).
 // Hội thoại + nội dung trang đã đọc lưu trong chrome.storage.session theo url – mở lại panel trên cùng trang thì còn nguyên.
-const MIN_SELECTION_CHARS = 20; // đoạn bôi đen ngắn hơn coi như bôi nhầm, không đưa vào chat
-// Mỗi hội thoại (theo url) tự giữ lượt đang trả lời của nó (`job`): sang tab khác thì lượt đó vẫn chạy tiếp và tự lưu
-// vào hội thoại của trang cũ; quay lại tab đó thì thấy chữ đang về tiếp hoặc câu trả lời đã xong.
-let chatCtx = { url: null, title: "", page: null, selection: "", turns: [], job: null, error: null }; // hội thoại của trang đang xem
-const liveChats = new Map(); // url → hội thoại đang có lượt trả lời chạy dở (kể cả khi người dùng đã sang tab khác)
+// Máy trạng thái (hội thoại theo url, lượt chạy nền, đọc trang, đoạn bôi đen, lưu session) nằm ở lib/chat-session.js;
+// phần dưới chỉ vẽ theo sự kiện của nó. Sang tab khác KHÔNG dừng lượt đang trả lời: nó chạy tiếp và tự lưu vào trang cũ.
+const chat = createChatSession({
+  chatWithPage, extractPage, getSelectionText, canAccess,
+  store: { get: getCachedChat, set: setCachedChat, clear: clearCachedChat },
+  getSettings: () => settings,
+  saveSettings: async (patch) => { settings = await saveSettings(patch); },
+  hasKey: () => hasLLMKey(settings)
+});
 
 function escapeHTML(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -440,25 +456,29 @@ function renderChatEmpty() {
 }
 
 function renderChatLog() {
+  const ctx = chat.ctx;
   const log = $("chatLog");
   log.replaceChildren();
-  if (!chatCtx.turns.length && !chatCtx.job) {
+  if (!ctx.turns.length && !ctx.job) {
     renderChatEmpty();
     return;
   }
-  for (const t of chatCtx.turns) {
+  for (const t of ctx.turns) {
     const div = appendChatMsg(t.role, t.content);
     if (t.role === "assistant") chatMsgCopy(div);
   }
-  if (chatCtx.job) attachJobView(chatCtx.job); // lượt đang chạy (vd. vừa quay lại tab này)
+  if (ctx.job) attachJobView(ctx.job); // lượt đang chạy (vd. vừa quay lại tab này)
   window.scrollTo(0, document.body.scrollHeight);
 }
+
+// bong bóng của từng lượt đang chạy (job → {user, bubble, md, paint}); lib/chat-session.js không biết DOM
+const jobViews = new WeakMap();
 
 /** Vẽ câu hỏi đang chờ + bong bóng trả lời đang về của một lượt; chữ về sau sẽ vẽ vào đây. */
 function attachJobView(job) {
   if (!job.question) return; // còn đang đọc trang: chưa có gì để vẽ
   $("chatLog").querySelector(".chat-empty")?.remove();
-  appendChatMsg("user", job.question);
+  const user = appendChatMsg("user", job.question);
   const bubble = appendChatMsg("assistant", "");
   bubble.classList.add("streaming");
   const md = bubble.querySelector(".md");
@@ -466,85 +486,41 @@ function attachJobView(job) {
     md.innerHTML = renderChatHTML(job.acc);
     bubble.dataset.plain = job.acc;
   }
-  job.view = { bubble, md };
+  // chữ hiện dần: gộp vẽ trong cùng một khung hình (job.acc là bản cộng dồn)
+  const paint = frameThrottle(() => {
+    if (jobViews.get(job)?.bubble !== bubble) return; // đã vẽ lại hội thoại / có bong bóng mới
+    md.innerHTML = renderChatHTML(job.acc);
+    bubble.dataset.plain = job.acc;
+    chatScroll();
+  });
+  jobViews.set(job, { user, bubble, md, paint });
   chatScroll();
 }
 
-/** Lỗi của lượt chạy khi người dùng đang ở tab khác: báo khi quay lại, trả câu hỏi về ô nhập (nếu ô đang trống). */
-function showChatError() {
-  const err = chatCtx.error;
-  if (!err) return;
-  chatCtx.error = null;
-  setStatus($("chatStatus"), err.message, "error");
-  if (err.text && !$("chatInput").value.trim()) $("chatInput").value = err.text;
+/** Bong bóng đang hiện (nếu đang xem hội thoại này) → câu trả lời cuối cùng; rỗng thì bỏ bong bóng. */
+function finishView(job, content) {
+  const v = jobViews.get(job);
+  if (!v) return;
+  v.bubble.classList.remove("streaming");
+  if (!content) {
+    v.bubble.remove();
+    return;
+  }
+  v.md.innerHTML = renderChatHTML(content);
+  v.bubble.dataset.plain = content;
+  chatMsgCopy(v.bubble);
+  chatScroll();
 }
 
 function updateChatCtxBar() {
   const t = currentTab;
+  const ctx = chat.ctx;
   $("chatCtxTitle").textContent = t?.title || t?.url || "—";
   const note = $("chatCtxNote");
   if (!t || !canAccess(t)) note.textContent = "không đọc được nội dung trang này";
-  else if (chatCtx.page) note.textContent = "đã đọc nội dung trang";
+  else if (ctx.page) note.textContent = "đã đọc nội dung trang";
   else note.textContent = "sẽ đọc trang khi bạn hỏi";
-  if (t && canAccess(t) && chatCtx.selection) note.textContent += ` · kèm đoạn bôi đen (${chatCtx.selection.length.toLocaleString("vi-VN")} ký tự)`;
-}
-
-// đổi trang: KHÔNG huỷ lượt đang trả lời (nó chạy tiếp cho trang cũ); hiện hội thoại của url mới –
-// đang có lượt chạy dở thì lấy đúng hội thoại đó (liveChats), không thì nạp bản đã lưu (nếu có)
-async function resetChatForPage() {
-  const t = currentTab;
-  const url = t?.url || null;
-  let next = url ? liveChats.get(url) : null;
-  if (!next) {
-    next = { url, title: t?.title || "", page: null, selection: "", turns: [], job: null, error: null };
-    const cached = url ? await getCachedChat(url) : null;
-    if (url !== currentTab?.url) return; // đã đổi tab tiếp trong lúc đọc cache
-    const live = url ? liveChats.get(url) : null;
-    if (live) next = live;
-    else if (cached && Array.isArray(cached.turns)) {
-      next.page = cached.page || null;
-      next.selection = cached.selection || "";
-      next.turns = cached.turns;
-    }
-  }
-  chatCtx = next;
-  setChatBusy(Boolean(chatCtx.job));
-  setStatus($("chatStatus"), "");
-  renderChatLog();
-  updateChatCtxBar();
-  showChatError();
-}
-
-async function saveChatSession(ctx = chatCtx) {
-  if (!ctx.url) return;
-  if (!ctx.turns.length) await clearCachedChat(ctx.url);
-  else await setCachedChat(ctx.url, { url: ctx.url, title: ctx.title || currentTab?.title, page: ctx.page, selection: ctx.selection, turns: ctx.turns });
-}
-
-// đọc nội dung trang một lần cho tới khi đổi trang / bấm đọc lại
-const MIN_PAGE_CHARS = 50; // ít hơn mức này coi như không đọc được (vd. trang chưa dựng xong)
-const PAGE_READ_ERROR = "Không đọc được nội dung trang – bấm ⟳ để thử lại.";
-
-/**
- * @returns {Promise<boolean>} false nếu trang đọc được mà việc đọc thất bại (lỗi hoặc gần như không có chữ);
- *   trang hệ thống (không đọc được) vẫn trả true: khi đó chat như trợ lý chung.
- */
-async function ensureChatPage(ctx = chatCtx, tab = currentTab) {
-  if (ctx.page || !canAccess(tab)) return true;
-  // tab/ctx đã chốt lúc gửi: người dùng sang tab khác giữa chừng thì vẫn đọc đúng trang của hội thoại này
-  if (ctx === chatCtx) setStatus($("chatStatus"), "Đang đọc trang…", "loading");
-  let page = null;
-  try {
-    page = await extractPage(tab.id);
-  } catch { /* báo lỗi bên dưới */ }
-  const ok = Boolean(page?.text && page.text.trim().length >= MIN_PAGE_CHARS);
-  ctx.page = ok ? page : null;
-  if (ctx === chatCtx) {
-    if (ok) setStatus($("chatStatus"), "");
-    else setStatus($("chatStatus"), PAGE_READ_ERROR, "error");
-    updateChatCtxBar();
-  }
-  return ok;
+  if (t && canAccess(t) && ctx.selection) note.textContent += ` · kèm đoạn bôi đen (${ctx.selection.length.toLocaleString("vi-VN")} ký tự)`;
 }
 
 function setChatBusy(busy) {
@@ -554,154 +530,67 @@ function setChatBusy(busy) {
 }
 
 // `override`: câu hỏi có sẵn (bấm thẻ gợi ý) → gửi ngay, không đụng tới nội dung đang gõ trong ô nhập.
-// Lượt trả lời thuộc về hội thoại của trang lúc bấm gửi: người dùng sang tab khác thì nó vẫn chạy tới cùng và tự lưu.
-async function sendChat(override) {
-  const input = $("chatInput");
+// Mọi luật (khoá, đọc trang, đoạn bôi đen, lưu theo trang lúc bấm gửi) nằm trong lib/chat-session.js; panel chỉ vẽ theo sự kiện.
+function sendChat(override) {
   const fromChip = typeof override === "string";
-  const text = (fromChip ? override : input.value).trim();
-  if (!text || chatCtx.job) return;
-  if (!hasLLMKey(settings)) {
-    setStatus($("chatStatus"), "Chưa có API key. Vào tab Cài đặt để nhập key OpenRouter (miễn phí) hoặc OpenAI / Claude / Gemini.", "error");
-    return;
-  }
-  const ctx = chatCtx; // giữ ctx + tab này kể cả khi người dùng đổi tab giữa chừng
-  const tab = currentTab;
-  ctx.title = tab?.title || ctx.title;
-  const brief = lastSummary; // bản tóm tắt người dùng vừa đọc trên trang này
-  // khoá ngay từ đầu (trước lúc đọc trang) để gửi lần hai / bấm đúp thẻ không chạy song song; nút hiện "Dừng"
-  const job = { abort: new AbortController(), question: "", acc: "", view: null, discard: false };
-  ctx.job = job;
-  ctx.error = null;
-  if (ctx.url) liveChats.set(ctx.url, ctx);
-  setChatBusy(true);
-  const here = () => ctx === chatCtx;
-  const release = () => {
-    if (ctx.job !== job) return; // đã bị tách ra (bấm 🗑) hoặc đã có lượt mới
-    ctx.job = null;
-    if (liveChats.get(ctx.url) === ctx) liveChats.delete(ctx.url); // đã lưu vào session: quay lại thì nạp từ đó
-    if (here()) setChatBusy(false);
-  };
-  // lỗi xảy ra lúc người dùng ở tab khác: để dành, báo khi quay lại (showChatError)
-  const fail = (message) => {
-    if (here()) {
-      setStatus($("chatStatus"), message, "error");
-      if (!fromChip || !input.value.trim()) input.value = text; // trả về ô nhập để sửa rồi gửi lại (không đè nội dung đang gõ)
-    } else ctx.error = { message, text };
-  };
-
-  // đoạn đang bôi đen trên trang (thư/ticket cần trả lời; quét cả iframe) → ngữ cảnh dính theo hội thoại cho tới khi bôi đoạn khác / bấm 🗑
-  if (canAccess(tab)) {
-    const sel = await getSelectionText(tab.id, { allFrames: true }).catch(() => "");
-    if (sel.replace(/\s+/g, " ").trim().length >= MIN_SELECTION_CHARS) {
-      ctx.selection = sel.slice(0, 8000);
-      if (here()) updateChatCtxBar();
-    }
-  }
-  const pageOk = job.abort.signal.aborted ? false : await ensureChatPage(ctx, tab);
-  if (job.abort.signal.aborted || (!pageOk && !ctx.selection)) {
-    // bấm Dừng / đọc trang lỗi mà không có đoạn bôi đen: không gửi, câu đang gõ vẫn còn
-    if (!job.abort.signal.aborted && !here()) ctx.error = { message: PAGE_READ_ERROR, text };
-    release();
-    return;
-  }
-
-  if (here()) setStatus($("chatStatus"), "");
-  if (!fromChip && input.value.trim() === text) input.value = "";
-  job.question = text;
-  if (here()) attachJobView(job);
-
-  const turns = [...ctx.turns, { role: "user", content: text }];
-  // chữ hiện dần: gộp vẽ trong cùng một khung hình (onDelta đưa từng đoạn chữ, phải cộng dồn trước);
-  // chỉ vẽ khi đang xem hội thoại này – ở tab khác thì chữ vẫn về và được vẽ lại khi quay lại (attachJobView)
-  const paint = frameThrottle((full) => {
-    if (!here() || !job.view) return;
-    job.view.md.innerHTML = renderChatHTML(full);
-    job.view.bubble.dataset.plain = full;
-    chatScroll();
-  });
-  // bong bóng đang hiện (nếu đang xem hội thoại này) → câu trả lời cuối cùng
-  const finishView = (content) => {
-    const v = here() ? job.view : null;
-    if (!v) return;
-    v.bubble.classList.remove("streaming");
-    if (!content) {
-      v.bubble.remove();
-      return;
-    }
-    v.md.innerHTML = renderChatHTML(content);
-    v.bubble.dataset.plain = content;
-    chatMsgCopy(v.bubble);
-    chatScroll();
-  };
-  try {
-    const reply = await chatWithPage(settings, {
-      page: ctx.page,
-      brief,
-      selection: ctx.selection,
-      turns,
-      onDelta: (d) => {
-        job.acc += d;
-        paint(job.acc);
-      },
-      signal: job.abort.signal
-    });
-    ctx.turns = trimTurns([...turns, { role: "assistant", content: reply }]);
-    finishView(reply);
-    await saveChatSession(ctx); // đang ở tab khác: vẫn lưu vào hội thoại của trang này
-    if (text.startsWith(REPLY_PROMPT)) {
-      // nhớ phong cách trả lời cho lần bấm thẻ ✉️ sau (không chờ, lỗi lưu không làm hỏng câu trả lời)
-      saveSettings({ replyStyle: text.slice(REPLY_PROMPT.length).trim().slice(0, 200) }).then((s) => (settings = s)).catch(() => {});
-    }
-  } catch (e) {
-    if (e.name === "AbortError") {
-      if (job.discard) return; // bấm 🗑 giữa chừng: hội thoại đã xoá, không ghi lại
-      // bấm "Dừng": giữ câu hỏi + phần đã viết (nếu có) trong hội thoại
-      ctx.turns = trimTurns(job.acc.trim() ? [...turns, { role: "assistant", content: job.acc }] : turns);
-      finishView(job.acc.trim() ? job.acc : "");
-      await saveChatSession(ctx);
-    } else {
-      if (here() && job.view) {
-        job.view.bubble.remove();
-        [...$("chatLog").querySelectorAll(".chat-msg.user")].at(-1)?.remove(); // câu hỏi không vào lịch sử
-      }
-      fail(e.message || String(e));
-    }
-  } finally {
-    release();
-  }
+  return chat.send({ text: fromChip ? override : $("chatInput").value, fromChip, brief: lastSummary });
 }
+
+const CHAT_ERRORS = {
+  "no-key": "Chưa có API key. Vào tab Cài đặt để nhập key OpenRouter (miễn phí) hoặc OpenAI / Claude / Gemini.",
+  "no-access": "Không đọc được nội dung trang này (trang hệ thống của Chrome, Chrome Web Store hoặc file PDF).",
+  "page-read": "Không đọc được nội dung trang – bấm ⟳ để thử lại."
+};
+
+const here = (ctx) => ctx === chat.ctx; // sự kiện của hội thoại ở tab khác không vẽ lên màn hình
+chat.on("state", ({ ctx, relog }) => {
+  if (!here(ctx)) return;
+  setChatBusy(chat.isBusy());
+  if (relog) {
+    setStatus($("chatStatus"), "");
+    renderChatLog();
+  }
+  updateChatCtxBar();
+});
+chat.on("status", ({ ctx, code }) => {
+  if (here(ctx)) setStatus($("chatStatus"), code === "reading" ? "Đang đọc trang…" : "", code ? "loading" : "");
+});
+chat.on("started", ({ ctx, job, text, fromChip }) => {
+  if (!here(ctx)) return;
+  setStatus($("chatStatus"), "");
+  if (!fromChip && $("chatInput").value.trim() === text) $("chatInput").value = "";
+  attachJobView(job);
+});
+chat.on("delta", ({ ctx, job }) => {
+  if (here(ctx)) jobViews.get(job)?.paint();
+});
+chat.on("done", ({ ctx, job, reply }) => {
+  if (here(ctx)) finishView(job, reply);
+});
+chat.on("aborted", ({ ctx, job, partial }) => {
+  if (here(ctx)) finishView(job, partial);
+});
+chat.on("failed", ({ ctx, job, code, message, text, restore }) => {
+  if (!here(ctx)) return;
+  const v = job && jobViews.get(job);
+  if (v) { // câu hỏi không vào lịch sử
+    v.bubble.remove();
+    v.user.remove();
+  }
+  setStatus($("chatStatus"), code === "error" ? message : CHAT_ERRORS[code], "error");
+  const input = $("chatInput");
+  if (restore === "always" || (restore === "ifEmpty" && !input.value.trim())) input.value = text; // trả về ô nhập để sửa rồi gửi lại
+});
 
 $("chatInput").addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
     e.preventDefault();
-    if (!chatCtx.job) sendChat();
+    if (!chat.isBusy()) sendChat();
   }
 });
-$("btnChatSend").addEventListener("click", () => (chatCtx.job ? chatCtx.job.abort.abort() : sendChat()));
-$("btnChatRefresh").addEventListener("click", async () => {
-  if (!canAccess(currentTab)) {
-    setStatus($("chatStatus"), "Không đọc được nội dung trang này (trang hệ thống của Chrome, Chrome Web Store hoặc file PDF).", "error");
-    return;
-  }
-  chatCtx.page = null;
-  await ensureChatPage();
-});
-$("btnChatClear").addEventListener("click", async () => {
-  const job = chatCtx.job;
-  if (job) {
-    // tách lượt đang chạy ra ngay (huỷ xong mới về sau), để vẽ lại hội thoại trống không còn bong bóng cũ
-    job.discard = true;
-    job.abort.abort();
-    chatCtx.job = null;
-    if (liveChats.get(chatCtx.url) === chatCtx) liveChats.delete(chatCtx.url);
-    setChatBusy(false);
-  }
-  chatCtx.turns = [];
-  chatCtx.selection = ""; // đoạn bôi đen thuộc về hội thoại cũ (vd. thư đã trả lời xong)
-  if (chatCtx.url) await clearCachedChat(chatCtx.url);
-  renderChatLog(); // giữ nguyên nội dung trang đã đọc
-  updateChatCtxBar();
-});
+$("btnChatSend").addEventListener("click", () => (chat.isBusy() ? chat.stop() : sendChat()));
+$("btnChatRefresh").addEventListener("click", () => chat.refreshPage());
+$("btnChatClear").addEventListener("click", () => chat.clear());
 $("btnAskMore").addEventListener("click", () => {
   showTab("chat");
   $("chatInput").focus();
@@ -968,6 +857,11 @@ chrome.tabs.onActivated.addListener(async ({ windowId }) => {
   const win = await chrome.windows.getCurrent();
   if (windowId === win.id) refreshPage();
 });
+chrome.tabs.onRemoved.addListener((tabId) => {
+  if (!(tabId in fnByTab)) return;
+  delete fnByTab[tabId];
+  saveFnByTab();
+});
 chrome.tabs.onUpdated.addListener((tabId, info) => {
   if (tabId !== currentTab?.id) return;
   if (info.status === "complete" || info.url) refreshPage();
@@ -979,9 +873,12 @@ chrome.tabs.onUpdated.addListener((tabId, info) => {
 
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg?.type === "summarize-now") {
-    showTab("summary");
     chrome.storage.session.remove("pendingSummarize");
-    refreshPage().then(() => runSummary(false, msg.selection ? "selection" : "auto"));
+    // đổi tab xong mới chuyển sang Tóm tắt, để chức năng được ghi nhớ cho đúng tab
+    refreshPage().then(() => {
+      showTab("summary");
+      runSummary(false, msg.selection ? "selection" : "auto");
+    });
   }
 });
 
