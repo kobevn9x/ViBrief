@@ -126,7 +126,9 @@ async function refreshPage() {
   $("btnSummarize").disabled = false;
 
   const cached = await getCachedSummary(settings, currentTab.url);
+  const away = running.get(currentTab.id); // lượt tóm tắt bị bỏ dở khi rời tab: nối lại vào job đang chạy ở background
   if (cached) renderSummary(cached);
+  else if (away?.url === currentTab.url) runSummary(false, away.scope);
   else if (settings.autoSummarize && hasLLMKey(settings)) runSummary();
 
   if (!$("tab-translate").hidden) refreshBilingualState();
@@ -143,6 +145,8 @@ async function runSummary(force = false, scope = "auto") {
   }
   const seq = ++summarySeq;
   const tab = currentTab;
+  const token = { url: tab.url, scope };
+  running.set(tab.id, token);
 
   $("btnSummarize").disabled = true;
   $("summaryResult").hidden = true;
@@ -157,7 +161,9 @@ async function runSummary(force = false, scope = "auto") {
   let res;
   try {
     res = await streamSummary({ tabId: tab.id, force, scope, onPartial });
+    if (running.get(tab.id) === token) running.delete(tab.id);
   } catch (e) {
+    if (running.get(tab.id) === token) running.delete(tab.id);
     if (stale()) return;
     $("btnSummarize").disabled = false;
     $("summaryResult").hidden = true;
@@ -170,6 +176,7 @@ async function runSummary(force = false, scope = "auto") {
   renderSummary(res.result);
   setStatus($("summaryStatus"), "");
 }
+const running = new Map(); // tabId → {url, scope} của lượt tóm tắt chưa xong (kể cả lượt đã "stale" vì người dùng sang tab khác)
 let seqDone = 0; // lượt đã xong: bỏ qua bản dở dang vẽ muộn sau kết quả cuối
 
 // Dòng số đo của lần tóm tắt: tổng thời gian, đọc trang, AI, token, model
