@@ -29,8 +29,8 @@ async function ensureBilingual(tabId) {
 }
 
 // ---------------------------------------------------------------- dịch đoạn bôi đen
-// Một tác vụ cho mỗi (bộ máy, ngôn ngữ đích, đoạn): rê chuột lên nút "Dịch đoạn này" bắt đầu dịch sẵn,
-// bấm nút / popup dịch dùng lại đúng tác vụ đó (cùng kiểu dùng chung yêu cầu đang chạy như summarizeTab).
+// Một tác vụ cho mỗi (bộ máy, ngôn ngữ đích, đoạn): bấm nút "Dịch đoạn này" bắt đầu dịch,
+// popup dịch dùng lại đúng tác vụ đó (cùng kiểu dùng chung yêu cầu đang chạy như summarizeTab).
 const { MAX_LEN } = globalThis.__tldrviCore; // cùng giới hạn với content/bilingual.js
 const SEL_TTL = 2 * 60 * 1000;
 const selJobs = new Map(); // key → {partial, result, error, listeners, at}
@@ -74,7 +74,7 @@ async function prepareSelection(rawText) {
   return { text, target };
 }
 
-/** Hiện popup dịch cạnh đoạn chọn; bản dịch đã chạy từ trước (prepareSelection) nên chỉ còn chờ phần còn lại. */
+/** Bắt đầu dịch (prepareSelection) rồi hiện popup cạnh đoạn chọn; popup nhận bản dịch từ đúng tác vụ đó qua port. */
 async function showSelectionPopup(tabId, rawText) {
   const sel = await prepareSelection(rawText);
   await ensureBilingual(tabId);
@@ -301,11 +301,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       return { ok: true, result, cached, html: renderSummaryHTML(result) };
     })().then(sendResponse, (e) => sendResponse({ ok: false, error: e?.message || String(e) }));
     return true;
-  }
-  if (msg?.type === "prefetch-selection") {
-    // rê chuột lên nút "Dịch đoạn này": dịch sẵn để bấm là có ngay (chỉ từ content script của tab)
-    if (sender.tab?.id) prepareSelection(msg.text).catch(() => {});
-    return;
   }
   if (msg?.type === "translate-selection") {
     // từ nút "Dịch đoạn này" của nút nổi: chỉ dịch được vùng chọn của chính tab gửi

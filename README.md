@@ -96,7 +96,7 @@ Phím tắt đang dùng hiện ở cuối popup và trong tab **Cài đặt** �
 ### Tóm tắt đoạn bôi đen
 
 - Bôi đen một đoạn **dài hơn 100 ký tự** → hai nút nhỏ **Tóm tắt đoạn này** và **Dịch đoạn này** hiện ngay dưới vùng chọn; bấm tóm tắt thì thẻ kết quả hiện cạnh đoạn đó và **chỉ đoạn đó** được gửi cho AI, bấm dịch thì popup bản dịch hiện ngay dưới đoạn.
-- **Dịch gần như tức thì:** rê chuột lên nút **Dịch đoạn này** là extension bắt đầu dịch luôn, nên lúc bấm thường đã có bản dịch. Bản dịch dùng đúng **bộ máy dịch** và **chiều dịch** bạn chọn ở tab **Dịch**; với bộ máy AI, chữ hiện dần trong popup thay vì chờ dịch xong.
+- Bản dịch chỉ bắt đầu khi bạn bấm **Dịch đoạn này** (bôi đen để sao chép hay rê chuột qua nút thì không gửi gì đi) và dùng đúng **bộ máy dịch** và **chiều dịch** bạn chọn ở tab **Dịch**; với bộ máy AI, chữ hiện dần trong popup thay vì chờ dịch xong.
 - Khi đang bôi đen đoạn đủ dài, nút nổi, popup (icon hoặc `Alt+S`), nút **Tóm tắt trang này** trong Side Panel và chuột phải → *Tóm tắt đoạn đã chọn* cũng chỉ tóm tắt đoạn đó. Đoạn ngắn hơn 100 ký tự thì không hiện nút và vẫn tóm tắt cả trang.
 - Đoạn ngắn được tóm tắt gọn hơn (ít ý hơn). Kết quả của đoạn chọn không lưu bộ nhớ đệm, nên không ảnh hưởng bản tóm tắt cả trang đã có.
 - Không hiện nút khi bôi đen trong ô nhập liệu. Nút ẩn đi khi bỏ chọn, cuộn trang hoặc nhấn `Esc`; tắt cùng tuỳ chọn **Hiện nút tóm tắt nổi trên trang**.
@@ -119,7 +119,7 @@ Ngôn ngữ tóm tắt: **Song ngữ Anh–Việt** (mặc định) · Tiếng V
 
 ### Nút tóm tắt nổi
 
-- Hiện trên mọi trang web (trừ trang hệ thống của Chrome, Chrome Web Store và PDF). Nút chỉ dựng giao diện, **không đọc nội dung trang cho tới khi bạn bấm** (riêng đoạn bạn bôi đen thì được đo độ dài ngay trên máy để quyết định hiện nút **Tóm tắt đoạn này** / **Dịch đoạn này**; đoạn đó chỉ được gửi đi khi bạn bấm một trong hai nút, hoặc **rê chuột lên nút Dịch đoạn này** để dịch sẵn).
+- Hiện trên mọi trang web (trừ trang hệ thống của Chrome, Chrome Web Store và PDF). Nút chỉ dựng giao diện, **không đọc nội dung trang cho tới khi bạn bấm** (riêng đoạn bạn bôi đen thì được đo độ dài ngay trên máy để quyết định hiện nút **Tóm tắt đoạn này** / **Dịch đoạn này**; đoạn đó chỉ được gửi đi khi bạn bấm một trong hai nút).
 - Kết quả dùng chung bộ nhớ đệm với popup và Side Panel. Nút **Mở bảng đầy đủ** trong thẻ mở Side Panel (nếu Chrome không cho, nhấn `Alt+S` rồi bấm **Mở bảng đầy đủ** trong popup).
 - Tắt nút: tab **Cài đặt** → bỏ chọn **Hiện nút tóm tắt nổi trên trang** (áp dụng ngay, không cần tải lại trang).
 - Sau khi cập nhật/tải lại extension, cần tải lại các trang đang mở để nút hoạt động lại.
@@ -169,13 +169,12 @@ Extension **không có máy chủ riêng**, không có analytics, không thu th�
 | Tóm tắt ở chế độ **Song ngữ** (mặc định) | Thêm: bản tóm tắt tiếng Việt (không phải cả trang) để dịch sang tiếng Anh | `translate.googleapis.com` (Google Translate). Nếu Google lỗi thì gửi cho nhà cung cấp AI |
 | Tóm tắt mà AI trả lời sai ngôn ngữ (vd. trang tiếng Trung → tóm tắt tiếng Trung) | Thêm: bản tóm tắt đó để dịch sang ngôn ngữ đã chọn | Chế độ **Song ngữ**: Google Translate, lỗi thì nhà cung cấp AI. Chế độ *Tiếng Việt* / *English*: chỉ nhà cung cấp AI |
 | Bật dịch song ngữ trang, dịch đoạn chọn, dịch nhanh | Chữ của các đoạn cần dịch | Bộ máy dịch đang chọn: Google (mặc định) hoặc nhà cung cấp AI |
-| Rê chuột lên nút **Dịch đoạn này** (kể cả khi không bấm) | Đoạn đang bôi đen, để dịch sẵn | Bộ máy dịch đang chọn: Google (mặc định) hoặc nhà cung cấp AI |
 | Hỏi đáp về trang (tab **Hỏi đáp**) | Câu hỏi của bạn + tiêu đề, URL, chữ của trang (tối đa 20.000 ký tự) + đoạn bạn đang bôi đen (nếu có, tối đa 8.000 ký tự) + bản tóm tắt đang xem (nếu có) + các lượt hội thoại trước | Nhà cung cấp AI bạn chọn |
 | Tóm tắt hoặc Hỏi đáp khi đã điền mục **Cá nhân hoá AI** | Thêm: hướng dẫn chung (tóm tắt và Hỏi đáp); quy tắc viết email và bộ nhớ (Hỏi đáp); mẫu email đã lưu (khi nhờ viết phản hồi) | Nhà cung cấp AI bạn chọn |
 | Kiểm tra kết nối | Một câu kiểm tra ngắn | Nhà cung cấp AI |
 | Tải danh sách model miễn phí / để trống ô Model | Không gửi dữ liệu của bạn (chỉ đọc danh sách model công khai) | `openrouter.ai` |
 
-- **Chỉ mở trang thì không gửi gì.** Nút nổi chỉ dựng giao diện. Nội dung trang chỉ được đọc khi chính bạn bấm (hoặc rê chuột lên nút **Dịch đoạn này** cạnh đoạn bôi đen), và script của trang web không thể "bấm hộ" hay "rê chuột hộ" (extension bỏ qua mọi thao tác giả).
+- **Chỉ mở trang thì không gửi gì.** Nút nổi chỉ dựng giao diện. Nội dung trang chỉ được đọc khi chính bạn bấm, và script của trang web không thể "bấm hộ" (extension bỏ qua mọi thao tác giả).
 - **Kết quả tóm tắt** và **hội thoại Hỏi đáp** (kèm chữ của trang đã đọc cho tab đó) chỉ lưu tạm trong bộ nhớ phiên (`chrome.storage.session`) và mất khi đóng trình duyệt; xoá hội thoại bằng nút 🗑 trong tab Hỏi đáp.
 - **Model miễn phí:** dữ liệu gửi đi tuân theo chính sách của từng nhà cung cấp. Một số model miễn phí trên OpenRouter có thể được nhà cung cấp lưu lại hoặc dùng để huấn luyện; hãy xem phần cài đặt quyền riêng tư trong tài khoản OpenRouter.
 - **Nội dung nhạy cảm** (email, tài liệu nội bộ), nên chọn một trong các cách sau:
@@ -198,6 +197,9 @@ Extension **không có máy chủ riêng**, không có analytics, không thu th�
 - Tóm tắt đoạn bôi đen chỉ đọc vùng chọn ở trang chính (không đọc vùng chọn trong iframe hay trong ô nhập liệu).
 
 ## Thay đổi
+
+### v1.3.10
+- **Sửa lỗi:** bôi đen để sao chép rồi rê chuột qua nút **Dịch đoạn này** không còn tự gửi đoạn đó đi dịch (và tốn lượt gọi API). Giờ chỉ dịch khi bạn bấm nút, theo đúng bộ máy dịch chọn ở tab **Dịch**. Đổi lại, bản dịch không còn được chuẩn bị sẵn trước khi bấm.
 
 ### v1.3.8
 - **Ô nhập tab Hỏi đáp to hơn:** cao khoảng 4 dòng, tự cao theo nội dung và kéo giãn được bằng góc dưới-phải.

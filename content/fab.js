@@ -449,16 +449,7 @@ mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3
       selBar.hidden = true;
       openCard("selection", selAnchor);
     });
-    // Dịch: rê chuột lên nút là background dịch sẵn (bộ máy + chiều dịch theo cài đặt), bấm thì nạp bilingual.js
-    // và hiện popup dịch cạnh vùng chọn với đúng tác vụ đó. isTrusted: trang web không được "rê chuột hộ" để tiêu quota.
-    let prefetched = "";
-    trBtn.addEventListener("pointerenter", (e) => {
-      if (!e.isTrusted || !alive()) return;
-      const text = String(getSelection() || "").trim();
-      if (!text || text === prefetched) return;
-      prefetched = text;
-      chrome.runtime.sendMessage({ type: "prefetch-selection", text }).catch(() => {});
-    });
+    // Dịch: chỉ bắt đầu khi bấm (bộ máy + chiều dịch theo cài đặt); background nạp bilingual.js và hiện popup cạnh vùng chọn.
     trBtn.addEventListener("click", async (e) => {
       if (!e.isTrusted) return;
       selBar.hidden = true;
@@ -477,7 +468,7 @@ mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3
     for (const b of [fab, selBtn, trBtn]) b.addEventListener("mousedown", (e) => e.preventDefault());
 
     // ------------------------------------------------------------ nút cạnh đoạn bôi đen
-    // Chỉ xem vùng chọn để quyết định hiện nút; chữ chỉ được gửi đi khi rê chuột lên / bấm nút Dịch hoặc bấm Tóm tắt.
+    // Chỉ xem vùng chọn để quyết định hiện nút; chữ chỉ được gửi đi khi bấm nút Dịch hoặc Tóm tắt.
     function selectionInfo() {
       const sel = getSelection();
       if (!sel || sel.isCollapsed || !sel.rangeCount) return null;

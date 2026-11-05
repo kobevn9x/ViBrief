@@ -98,7 +98,7 @@ The active shortcuts are shown at the bottom of the popup and in **Cài đặt**
 ### Summarizing highlighted text
 
 - Highlight text **longer than 100 characters** → two small buttons, **Tóm tắt đoạn này** and **Dịch đoạn này**, appear right below the selection. Summarize shows the result card next to that text and sends **only that text** to the AI; translate shows the translation popup right next to it.
-- **Near-instant translation:** hovering over **Dịch đoạn này** starts translating right away, so the translation is usually ready by the time you click. It uses the **translation engine** and **direction** you chose in the **Dịch** tab; with the AI engine, the text appears word by word in the popup instead of after the whole translation is done.
+- Translation starts only when you click **Dịch đoạn này** (highlighting text to copy it or moving the mouse across the button sends nothing). It uses the **translation engine** and **direction** you chose in the **Dịch** tab; with the AI engine, the text appears word by word in the popup instead of after the whole translation is done.
 - While a long enough selection is active, the floating button, the popup (icon or `Alt+S`), the **Tóm tắt trang này** button in the Side Panel and right-click → *Tóm tắt đoạn đã chọn* also summarize only that text. Selections shorter than 100 characters show no buttons and the whole page is summarized.
 - Short selections get a more compact summary (fewer points). Selection summaries are not cached, so they don't affect an existing summary of the whole page.
 - The buttons don't appear for selections inside input fields. They hide when you clear the selection, scroll or press `Esc`, and are turned off together with the **Hiện nút tóm tắt nổi trên trang** (*Show the floating summary button*) option.
@@ -121,7 +121,7 @@ Summary language: **Song ngữ Anh–Việt** (*Bilingual English–Vietnamese*,
 
 ### Floating summary button
 
-- Shown on every web page (except Chrome's system pages, the Chrome Web Store and PDFs). The button only builds its UI and **does not read the page until you click it** (the only exception is text you highlight, whose length is measured locally to decide whether to show the **Tóm tắt đoạn này** / **Dịch đoạn này** buttons; that text is sent only when you click one of the buttons, or **hover over Dịch đoạn này** to pre-translate it).
+- Shown on every web page (except Chrome's system pages, the Chrome Web Store and PDFs). The button only builds its UI and **does not read the page until you click it** (the only exception is text you highlight, whose length is measured locally to decide whether to show the **Tóm tắt đoạn này** / **Dịch đoạn này** buttons; that text is sent only when you click one of the buttons).
 - Results share the same cache as the popup and the Side Panel. The **Mở bảng đầy đủ** button in the card opens the Side Panel (if Chrome refuses, press `Alt+S` and click **Mở bảng đầy đủ** in the popup).
 - To turn the button off: **Cài đặt** tab → uncheck **Hiện nút tóm tắt nổi trên trang** (applies immediately, no page reload needed).
 - After updating or reloading the extension, reload the open pages so the button works again.
@@ -171,13 +171,12 @@ The extension has **no server of its own**, no analytics, and collects no data. 
 | Summarize in **Bilingual** mode (default) | Additionally: the Vietnamese summary (not the whole page) to translate it into English | `translate.googleapis.com` (Google Translate). If Google fails, it is sent to the AI provider |
 | Summarize when the AI answers in the wrong language (e.g. a Chinese page → a Chinese summary) | Additionally: that summary, to translate it into the chosen language | **Bilingual** mode: Google Translate, or the AI provider if that fails. *Tiếng Việt* / *English* mode: the AI provider only |
 | Turn on page translation, translate a selection, quick translate | The text of the paragraphs to translate | The selected translation engine: Google (default) or the AI provider |
-| Hover over the **Dịch đoạn này** button (even without clicking) | The highlighted text, to pre-translate it | The selected translation engine: Google (default) or the AI provider |
 | Chat about the page (**Hỏi đáp** tab) | Your question + the page's title, URL and text (up to 20,000 characters) + the text you have highlighted (if any, up to 8,000 characters) + the summary you are viewing (if any) + the previous turns | The AI provider you chose |
 | Summarize or chat after filling in **Cá nhân hoá AI** | Additionally: the general instructions (summaries and Q&A); the email rules and memory (Q&A); the saved email examples (when asking for a reply) | The AI provider you chose |
 | Test the connection | A short test sentence | The AI provider |
 | Load free models / leave the Model field empty | None of your data (only reads the public model list) | `openrouter.ai` |
 
-- **Simply opening a page sends nothing.** The floating button only builds its UI. Page content is read only when you click yourself (or hover over the **Dịch đoạn này** button next to highlighted text), and the web page's scripts cannot "click" or "hover" for you (the extension ignores all synthetic events).
+- **Simply opening a page sends nothing.** The floating button only builds its UI. Page content is read only when you click yourself, and the web page's scripts cannot "click" for you (the extension ignores all synthetic events).
 - **Summaries** and **Hỏi đáp conversations** (including the page text read for that tab) are stored only temporarily in session storage (`chrome.storage.session`) and are cleared when the browser closes; clear a conversation with the 🗑 button in the Hỏi đáp tab.
 - **Free models:** data sent is subject to each provider's policy. Some free models on OpenRouter may be logged or used for training by their provider; check the privacy settings in your OpenRouter account.
 - **For sensitive content** (emails, internal documents), use one of these options:
@@ -200,6 +199,9 @@ The extension has **no server of its own**, no analytics, and collects no data. 
 - Summarizing highlighted text reads only the selection in the main page (not selections inside iframes or input fields).
 
 ## Changelog
+
+### v1.3.10
+- **Fix:** highlighting text to copy it and moving the mouse across **Dịch đoạn này** no longer sends that text for translation (or uses up API calls). Translation now starts only when you click the button, using the translation engine chosen in the **Dịch** tab. As a result, the translation is no longer prepared ahead of the click.
 
 ### v1.3.8
 - **Bigger input box in the Hỏi đáp tab:** about 4 lines tall, grows with its content and can be resized from the bottom-right corner.
